@@ -1,0 +1,49 @@
+
+/* Obalovacia div pre obsah, aby pätička zostala dole */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Hlavný obsah sa roztiahne, aby zatlačil pätičku dole */
+.main-content {
+    flex: 1;
+}
+
+h1 {
+    margin-left: 2%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 12px;
+    font-size: 16px;
+}
+
+td {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
