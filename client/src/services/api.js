@@ -13,3 +13,24 @@ export const fetchData = async () => {
         return null;  // Vrátime null namiesto throw error
     }
 };
+
+export const anonymizeData = async (data) => {
+    try {
+        const response = await fetch(`${API_URL}/anonymize`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            console.error("Chyba pri anonymizovani dát:", response.statusText);
+            return null;
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+};

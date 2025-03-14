@@ -4,7 +4,6 @@ import '../style/App.css';
 const DataTable = ({data}) => {
     return (
         <div className="main-content">
-            <h1>Zoznam pacientov</h1>
             {data.length > 0 ? (
                 <table border="1">
                     <thead>
