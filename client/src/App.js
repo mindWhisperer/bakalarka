@@ -2,19 +2,19 @@ import './style/App.css';
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import React from "react";
+import React, {useState} from "react";
 
 
 function App() {
+    const [view, setView] = useState("zoznam"); // Výchozí zobrazenie
 
     return (
         <div className="app-container">
-            <Navbar />
+            <Navbar setView={setView} />
             <div className="main-content">
-                <h1>Zoznam pacientov</h1>
-                < Home/>
+                <Home view={view} />
             </div>
-            <Footer/>
+            <Footer />
         </div>
     );
 }

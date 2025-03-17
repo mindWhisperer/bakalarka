@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DataTable from "../components/DataTable";
 import { fetchData, anonymizeData } from "../services/api";
 
-const Home = () => {
+const Home = ({view}) => {
     const [data, setData] = useState([]);
     const [anonymizedData, setAnonymizedData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -51,11 +51,16 @@ const Home = () => {
     return (
         <div>
             {error && <p>{error}</p>}
-            {loading ? <p>Načítavam údaje...</p> : <DataTable data={data}/>}
-
-            {!loading && data.length > 0 && (
-                <div>
-                    {/* Výber metódy anonymizácie */}
+            {loading ? (
+                <p>Načítavam údaje...</p>
+            ) : view === "zoznam" ? (
+                <>
+                    <h2>Zoznam pacientov</h2>
+                    <DataTable data={data} />
+                </>
+            ) : (
+                <>
+                    <h2>Anonymizované dáta</h2>
                     <select id="anonymizationMethod" value={selectedMethod} onChange={handleMethodChange}>
                         <option value="generalization">Generalizácia</option>
                         <option value="k-anonymity">K-Anonymita</option>
@@ -63,18 +68,9 @@ const Home = () => {
                         <option value="t-closeness">T-Uzavretosť</option>
                         <option value="random-masking">Náhodné maskovanie</option>
                     </select>
-
-                    {/* Tlačidlo na anonymizovanie dát */}
                     <button onClick={handleAnonymize}>Anonymizovať dáta</button>
-                </div>
-            )}
-
-            {/* Zobrazenie anonymizovaných dát */}
-            {anonymizedData.length > 0 && (
-                <div>
-                    <h2>Anonymizované dáta ({selectedMethod}):</h2>
-                    <DataTable data={anonymizedData}/>
-                </div>
+                    {anonymizedData.length > 0 && <DataTable data={anonymizedData} />}
+                </>
             )}
         </div>
     );
