@@ -4,7 +4,7 @@ const oracledb = require("oracledb");
 const {getConnection} = require('./db');
 const server = express();
 const port = process.env.PORT || 4000;
-const {generalize} = require('./anonymizationAlg');
+const {generalize, randomMasking, kAnonymity, lDiversity, tCloseness} = require('./anonymizationAlg');
 
 require('dotenv/config');
 
@@ -70,22 +70,70 @@ server.get('/', (req, res) => {
     res.send('Server beží! Použi /api/data na získanie údajov.');
 });
 
-server.post('/api/anonymize', (req, res) => {
+server.post('/api/anonymize', async(req, res) => {
     try {
-        const data = req.body;
+        const { data, method } = req.body;
         if (!data || data.length === 0) {
             return res.status(400).json({ error: 'Žiadne údaje na anonymizáciu' });
         }
 
-        // Voláme funkciu na anonymizáciu údajov
-        const anonymizedData = generalize(data);
+        let anonymizedData;
 
-        res.json(anonymizedData); // Vrátime anonymizované údaje
+        switch (method) {
+            case "generalization":
+                anonymizedData = generalize(data);
+                break;
+            case "k-anonymity":
+                anonymizedData = kAnonymity(data);
+                break;
+            case "l-diversity":
+                anonymizedData = lDiversity(data);
+                break;
+            case "t-closeness":
+                anonymizedData = tCloseness(data);
+                break;
+            case "random-masking":
+                anonymizedData = randomMasking(data);
+                break;
+            default:
+                anonymizedData = generalize(data);
+        }
+
+        await saveAnonymizedData(anonymizedData, method);
+
+        res.json(anonymizedData);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Chyba pri anonymizácii údajov' });
     }
 })
+
+const saveAnonymizedData = async (data, method) => {
+    const connection = await getConnection();
+    const tableName = `ANONYMIZED_${method.toUpperCase()}`;
+
+    await connection.execute(`
+        CREATE TABLE ${tableName} (
+                ID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                MENO VARCHAR2(100),
+                PRIEZVISKO VARCHAR2(100),
+                ID_PACIENTA VARCHAR2(10),
+                TYP_KRVI VARCHAR2(5),
+                VEK VARCHAR2(20),
+                POHLAVIE VARCHAR2(10))
+    `);
+
+    const insertQuery = `
+        INSERT INTO ${tableName} (MENO, PRIEZVISKO, ID_PACIENTA, TYP_KRVI, VEK, POHLAVIE)
+        VALUES (:MENO, :PRIEZVISKO, :ID_PACIENTA, :TYP_KRVI, :VEK, :POHLAVIE)
+    `;
+
+    for (const record of data) {
+        await connection.execute(insertQuery, record, { autoCommit: true });
+    }
+
+    await connection.close();
+};
 
 server.listen(port, () => {
     console.log(`Server beží na http://localhost:${port}`);

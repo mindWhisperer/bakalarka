@@ -7,6 +7,8 @@ const Home = () => {
     const [anonymizedData, setAnonymizedData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedMethod, setSelectedMethod] = useState("generalization"); // Predvolená metóda
+
 
     useEffect(() => {
         const loadData = async () => {
@@ -30,7 +32,7 @@ const Home = () => {
     const handleAnonymize = async () => {
         setLoading(true);
         try {
-            const anonymized = await anonymizeData(data);  // Posielame dáta na anonymizáciu
+            const anonymized = await anonymizeData(data, selectedMethod); // Posielame metódu ako parameter
             setAnonymizedData(anonymized);  // Uložíme anonymizované dáta
         } catch (error) {
             setError("Chyba pri anonymizácii dát.");
@@ -39,13 +41,28 @@ const Home = () => {
         }
     };
 
+    const handleMethodChange = (event) => {
+        setSelectedMethod(event.target.value);
+    };
+
     return (
         <div>
             {error && <p>{error}</p>}
             {loading ? <p>Načítavam údaje...</p> : <DataTable data={data}/>}
 
             {!loading && data.length > 0 && (
-                <button onClick={handleAnonymize}>Anonymizovať dáta</button>
+                <div>
+                    <select id="anonymizationMethod" value={selectedMethod} onChange={handleMethodChange}>
+                        <option value="generalization">Generalizácia</option>
+                        <option value="k-anonymity">K-Anonymita</option>
+                        <option value="l-diversity">L-Diverzita</option>
+                        <option value="t-closeness">T-Uzavretosť</option>
+                        <option value="random-masking">Náhodné maskovanie</option>
+                    </select>
+
+                    {/* Tlačidlo na anonymizovanie dát */}
+                    <button onClick={handleAnonymize}>Anonymizovať dáta</button>
+                </div>
             )}
 
             {anonymizedData.length > 0 && (

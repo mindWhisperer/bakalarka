@@ -14,14 +14,14 @@ export const fetchData = async () => {
     }
 };
 
-export const anonymizeData = async (data) => {
+export const anonymizeData = async (data, method) => {
     try {
         const response = await fetch(`${API_URL}/anonymize`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify({data, method})
         });
 
         if (!response.ok) {
