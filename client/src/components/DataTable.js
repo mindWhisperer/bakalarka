@@ -9,19 +9,18 @@ const DataTable = ({data}) => {
                     <thead>
                     <tr>
                         <th>PORADIE</th>
-                        {data.length > 0 &&
-                            Object.keys(data[0]).map((key) => (
-                                <th key={key}>{key}</th>
-                            ))}
+                        {Object.keys(data[0]).map((key) =>
+                            key !== "color" ? <th key={key}>{key}</th> : null
+                        )}
                     </tr>
                     </thead>
                     <tbody>
                     {data.map((row, index) => (
-                        <tr key={index}>
+                        <tr key={index} style={{ backgroundColor: row.color || "#ffffff" }}>
                             <td>{index + 1}</td>
-                            {Object.values(row).map((value, i) => (
-                                <td key={i}>{value}</td>
-                            ))}
+                            {Object.entries(row).map(([key, value], i) =>
+                                key !== "color" ? <td key={i}>{value}</td> : null
+                            )}
                         </tr>
                     ))}
                     </tbody>

@@ -26,9 +26,43 @@ const generalize = (data) => {
     });
 };
 
-const kAnonymity = () => {
-    //implementacia alg
+const getRandomColor = () => {
+    const colors = ["#C599B6", "#E6B2BA", "#FAD0C4", "#FFF7F3"];
+    return colors[Math.floor(Math.random() * colors.length)];
+
 }
+
+const kAnonymity = (data) => {
+    const k = 2;
+    const generalizedData = generalize(data);
+
+    const groups = {};
+    const groupColors = {}
+    generalizedData.forEach(record => {
+        const key = `${record.VEK}-${record.POHLAVIE}`;
+        if (!groups[key]) {
+            groups[key] = [];
+            groupColors[key] = getRandomColor();
+        }
+        groups[key].push(record);
+    });
+
+    // odstranenie mensich skupin ako k
+    const anonymizedData = [];
+    Object.entries(groups).forEach(([key, group]) => {
+        if (group.length >= k) {
+            anonymizedData.push(...group.map(record => ({
+                ...record,
+                color: groupColors[key]
+            })));
+        }
+    });
+
+    return anonymizedData;
+};
+
+
+
 
 const lDiversity = () => {
     //implementacia alg

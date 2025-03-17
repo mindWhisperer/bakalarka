@@ -9,7 +9,7 @@ const Home = () => {
     const [error, setError] = useState(null);
     const [selectedMethod, setSelectedMethod] = useState("generalization"); // Predvolená metóda
 
-
+    // Načítanie dát pri načítaní komponentu
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -29,10 +29,12 @@ const Home = () => {
         loadData();
     }, []);
 
+    // Funkcia na anonymizáciu dát
     const handleAnonymize = async () => {
         setLoading(true);
         try {
-            const anonymized = await anonymizeData(data, selectedMethod); // Posielame metódu ako parameter
+            // Posielame dáta a vybranú metódu anonymizácie
+            const anonymized = await anonymizeData(data, selectedMethod);
             setAnonymizedData(anonymized);  // Uložíme anonymizované dáta
         } catch (error) {
             setError("Chyba pri anonymizácii dát.");
@@ -41,6 +43,7 @@ const Home = () => {
         }
     };
 
+    // Funkcia na zmenu vybratej metódy anonymizácie
     const handleMethodChange = (event) => {
         setSelectedMethod(event.target.value);
     };
@@ -52,6 +55,7 @@ const Home = () => {
 
             {!loading && data.length > 0 && (
                 <div>
+                    {/* Výber metódy anonymizácie */}
                     <select id="anonymizationMethod" value={selectedMethod} onChange={handleMethodChange}>
                         <option value="generalization">Generalizácia</option>
                         <option value="k-anonymity">K-Anonymita</option>
@@ -65,9 +69,10 @@ const Home = () => {
                 </div>
             )}
 
+            {/* Zobrazenie anonymizovaných dát */}
             {anonymizedData.length > 0 && (
                 <div>
-                    <h2>Anonymizované dáta (generalizácia) :</h2>
+                    <h2>Anonymizované dáta ({selectedMethod}):</h2>
                     <DataTable data={anonymizedData}/>
                 </div>
             )}
@@ -76,5 +81,3 @@ const Home = () => {
 };
 
 export default Home;
-
-

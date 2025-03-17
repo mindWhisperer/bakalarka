@@ -48,7 +48,8 @@ server.get('/api/data', async (req, res) => {
              FROM OS_UDAJE
                      LEFT JOIN NIS_BC.PACIENT P ON OS_UDAJE.ROD_CISLO = P.ROD_CISLO
                      LEFT JOIN NIS_BC.ZDRAVOTNA_KARTA ZK ON P.ID_PACIENTA = ZK.ID_PACIENTA
-             FETCH FIRST 20 ROWS ONLY`
+--              OFFSET 1000 ROWS FETCH NEXT 800 ROWS ONLY
+            FETCH FIRST 50 ROWS ONLY`
         );
 
         res.json(result.rows); // Odoslanie dát ako JSON pre frontend
@@ -99,7 +100,7 @@ server.post('/api/anonymize', async(req, res) => {
                 anonymizedData = generalize(data);
         }
 
-        await saveAnonymizedData(anonymizedData, method);
+        //await saveAnonymizedData(anonymizedData, method);
 
         res.json(anonymizedData);
     } catch (error) {
@@ -110,30 +111,49 @@ server.post('/api/anonymize', async(req, res) => {
 
 const saveAnonymizedData = async (data, method) => {
     const connection = await getConnection();
-    const tableName = `ANONYMIZED_${method.toUpperCase()}`;
 
-    await connection.execute(`
-        CREATE TABLE ${tableName} (
+    // Validácia názvu tabuľky, aby neobsahoval žiadne neplatné znaky
+    const tableName = `ANONYMIZED_${method.toUpperCase()}`.replace(/[^a-zA-Z0-9_]/g, '');  // Odstráni neplatné znaky
+
+    // Vytvorenie tabuľky
+    try {
+        await connection.execute(`
+            CREATE TABLE ${tableName} (
                 ID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 MENO VARCHAR2(100),
                 PRIEZVISKO VARCHAR2(100),
                 ID_PACIENTA VARCHAR2(10),
                 TYP_KRVI VARCHAR2(5),
                 VEK VARCHAR2(20),
-                POHLAVIE VARCHAR2(10))
-    `);
+                POHLAVIE VARCHAR2(10)
+            )
+        `);
+    } catch (error) {
+        console.error("Chyba pri vytváraní tabuľky:", error);
+        // Skontrolujte, či je chyba spôsobená existujúcou tabuľkou
+        if (error.message.includes("table already exists")) {
+            console.log("Tabuľka už existuje.");
+        }
+    }
 
+    // Príkaz na vloženie anonymizovaných dát
     const insertQuery = `
         INSERT INTO ${tableName} (MENO, PRIEZVISKO, ID_PACIENTA, TYP_KRVI, VEK, POHLAVIE)
         VALUES (:MENO, :PRIEZVISKO, :ID_PACIENTA, :TYP_KRVI, :VEK, :POHLAVIE)
     `;
 
-    for (const record of data) {
-        await connection.execute(insertQuery, record, { autoCommit: true });
+    // Vkladanie dát do tabuľky
+    try {
+        for (const record of data) {
+            await connection.execute(insertQuery, record, { autoCommit: true });
+        }
+    } catch (error) {
+        console.error("Chyba pri vkladaní dát:", error);
     }
 
     await connection.close();
 };
+
 
 server.listen(port, () => {
     console.log(`Server beží na http://localhost:${port}`);
