@@ -27,19 +27,20 @@ const generalize = (data) => {
 };
 
 const getRandomColor = () => {
-    const colors = ["#C599B6", "#E6B2BA", "#FAD0C4", "#FFF7F3"];
+    const colors = ["#C599B6", "#E6B2BA", "#FAD0C4", "#FFF7F3", "#7A73D1", "#FFDFEF", "#B2A5FF", "#EFB6C8",
+    "#79D7BE", "#CDC1FF", "#A294F9", "#D9EAFD", "#BCCCDC", "#EFB6C8", "#FFD2A0", "#A1EEBD",
+        "#FCF596", "#7AB2D3", "#FFECC8", "#B692C2", "#E0FBE2", "#BFF6C3", "#EAD8C0"];
     return colors[Math.floor(Math.random() * colors.length)];
-
 }
 
 const kAnonymity = (data) => {
-    const k = 2;
+    const k = 5;
     const generalizedData = generalize(data);
 
     const groups = {};
     const groupColors = {}
     generalizedData.forEach(record => {
-        const key = `${record.VEK}-${record.POHLAVIE}`;
+        const key = `${record.VEK}-${record.POHLAVIE}-${record.TYP_KRVI}-${record.ID_PACIENTA}`;
         if (!groups[key]) {
             groups[key] = [];
             groupColors[key] = getRandomColor();
@@ -49,20 +50,21 @@ const kAnonymity = (data) => {
 
     // odstranenie mensich skupin ako k
     const anonymizedData = [];
+    const removedGroups = {}
     Object.entries(groups).forEach(([key, group]) => {
         if (group.length >= k) {
             anonymizedData.push(...group.map(record => ({
                 ...record,
                 color: groupColors[key]
             })));
+        } else {
+            removedGroups[key] = group;
         }
     });
 
+    console.log("Odstránené skupiny:", removedGroups);
     return anonymizedData;
 };
-
-
-
 
 const lDiversity = () => {
     //implementacia alg
