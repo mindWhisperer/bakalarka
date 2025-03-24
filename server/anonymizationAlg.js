@@ -68,8 +68,35 @@ const kAnonymity = (data) => {
     return anonymizedData;
 };
 
-const lDiversity = () => {
+const lDiversity = (data) => {
+    const l = 3;
+    const generalizedData = generalize(data);
 
+    const groups = {};
+    const groupColors = {}
+
+    generalizedData.forEach(record => {
+        const key = `${record.VEK}-${record.POHLAVIE}-${record.ID_PACIENTA}`;
+        if (!groups[key]) {
+            groups[key] = [];
+            groupColors[key] = getRandomColor();
+        }
+        groups[key].push(record);
+    });
+
+    const anonymizedData = [];
+    Object.values(groups).forEach(group => {
+        const uniqueSensitiveValues = new Set(group.map(item => item.TYP_KRVI));
+
+        if (uniqueSensitiveValues.size >= l) {
+            anonymizedData.push(...group.map(record => ({
+                ...record,
+                color: groupColors[`${record.VEK}-${record.POHLAVIE}-${record.ID_PACIENTA}`] // priradenie farby
+            })));
+        }
+    });
+
+    return anonymizedData;
 
 };
 
