@@ -1,3 +1,5 @@
+const { faker } = require('@faker-js/faker');
+
 const generalize = (data) => {
     return data.map(record => {
         const age = Math.floor(record.VEK);
@@ -67,15 +69,27 @@ const kAnonymity = (data) => {
 };
 
 const lDiversity = () => {
-    //implementacia alg
-}
+
+
+};
 
 const tCloseness = () => {
     //implementacia alg
 }
 
-const randomMasking = () => {
-    //implementacia alg
+const randomMasking = (data) => {
+    return data.map(() => {
+        const idPacienta = Math.random() < 0.1 ? null : faker.string.numeric(faker.number.int({ min: 2, max: 5 }));
+
+        return {
+            MENO: faker.person.firstName(),
+            PRIEZVISKO: faker.person.lastName(),
+            ID_PACIENTA: idPacienta,
+            TYP_KRVI: idPacienta ? faker.helpers.arrayElement(["A+", "A-", "B+", "B-", "AB+", "AB-", "0+", "0-"]) : null,
+            VEK: faker.number.int({ min: 1, max: 100 }),
+            POHLAVIE: faker.helpers.arrayElement(["M", "Z"])
+        };
+    });
 }
 
 module.exports = {generalize, kAnonymity, lDiversity, tCloseness,randomMasking}
