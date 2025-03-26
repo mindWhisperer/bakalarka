@@ -16,7 +16,7 @@ const DataTable = ({data}) => {
                     </thead>
                     <tbody>
                     {data.map((row, index) => (
-                        <tr key={index} style={{ backgroundColor: row.color || "#ffffff" }}>
+                        <tr key={index} style={{ backgroundColor: row.color || "#fff" }}>
                             <td>{index + 1}</td>
                             {Object.entries(row).map(([key, value], i) =>
                                 key !== "color" ? <td key={i}>{value}</td> : null

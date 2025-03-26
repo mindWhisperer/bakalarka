@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "../components/DataTable";
 import { fetchData, anonymizeData } from "../services/api";
+import '../style/App.css';
 
 const Home = ({view}) => {
     const [data, setData] = useState([]);
@@ -48,8 +49,19 @@ const Home = ({view}) => {
         setSelectedMethod(event.target.value);
     };
 
+    const getMethodName = (method) => {
+        const methods = {
+            "generalization": "Generalizácie",
+            "k-anonymity": "K-Anonymity",
+            "l-diversity": "L-Diverzity",
+            "t-closeness": "T-Uzavretosti",
+            "random-masking": "Náhodného maskovania"
+        };
+        return methods[method] || "neurčenej metódy";
+    };
+
     return (
-        <div>
+        <div id={"home"}>
             {error && <p>{error}</p>}
             {loading ? (
                 <p>Načítavam údaje...</p>
@@ -60,7 +72,7 @@ const Home = ({view}) => {
                 </>
             ) : (
                 <>
-                    <h2>Anonymizované dáta</h2>
+                    <h2>Anonymizované dáta pomocou algoritmu {getMethodName(selectedMethod)}</h2>
                     <select id="anonymizationMethod" value={selectedMethod} onChange={handleMethodChange}>
                         <option value="generalization">Generalizácia</option>
                         <option value="k-anonymity">K-Anonymita</option>
