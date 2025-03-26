@@ -19,7 +19,7 @@ h1 {
 table {
     width: 100%;
     margin: 20px auto;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 th {
@@ -51,7 +51,7 @@ button {
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease-in-out;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-left: 10%;
 }
 
@@ -76,7 +76,7 @@ button:active {
     appearance: none;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     margin-left: 10%;
 }
 

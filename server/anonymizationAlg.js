@@ -56,10 +56,14 @@ const kAnonymity = (data) => {
     const removedGroups = {}
     Object.entries(groups).forEach(([key, group]) => {
         if (group.length >= k) {
-            anonymizedData.push(...group.map(record => ({
-                ...record,
-                color: groupColors[key]
-            })));
+            anonymizedData.push(...group.map(record => {
+                const anonymizedRecord = { ...record };
+                delete anonymizedRecord.MENO;
+                delete anonymizedRecord.PRIEZVISKO;
+                anonymizedRecord.color = groupColors[key];  // Farba skupiny
+
+                return anonymizedRecord;
+            }));
         } else {
             removedGroups[key] = group;
         }
@@ -91,10 +95,15 @@ const lDiversity = (data) => {
         const uniqueDiseaseTypes = new Set(group.map(item => item.TYP_CHOROBY));
 
         if (uniqueBloodTypes.size >= l && uniqueDiseaseTypes.size >= l) {
-            anonymizedData.push(...group.map(record => ({
-                ...record,
-                color: groupColors[`${record.VEK}-${record.POHLAVIE}-${record.ID_PACIENTA}`]
-            })));
+            anonymizedData.push(...group.map(record => {
+                const anonymizedRecord = { ...record };
+                delete anonymizedRecord.MENO;
+                delete anonymizedRecord.PRIEZVISKO;
+
+                anonymizedRecord.color = groupColors[`${record.VEK}-${record.POHLAVIE}-${record.ID_PACIENTA}`];
+
+                return anonymizedRecord;
+            }));
         }
     });
 
@@ -114,18 +123,4 @@ const randomMasking =(data) => {
             PRIEZVISKO: faker.person.lastName(),
             ID_PACIENTA: idPacienta,
             TYP_KRVI: idPacienta ? faker.helpers.arrayElement(["A+", "A-", "B+", "B-", "AB+", "AB-", "0+", "0-"]) : null,
-            VEK: faker.number.int({ min: 1, max: 100 }),
-            POHLAVIE: faker.helpers.arrayElement(["M", "Z"]),
-            TYP: idPacienta ? faker.helpers.arrayElement(["Choroby krvi a krvotvorných orgánov", "Choroby svalovej a kostrovej sústavy a spojivového tkaniva",
-                "Faktory ovplyvňujúce zdravotný stav a styk so zdravotníckymi službami", "Poranenia, otravy a niektoré iné následky vonkajších príčin",
-                "Vrodené chyby, deformity a chromozómové anomálie", "Vonkajšie príčiny chorobnosti a úmrtnosti",
-                "Choroby dýchacej sústavy", "Choroby tráviacej sústavy", "Gravidita, pôrod a šestonedelie",
-            "Určité choroby vzniknuté v perinatálnom období", "Choroby ucha a hlávkového výbežku", "Choroby obehovej sústavy",
-            "Choroby oka a očných adnexov", "Nádory", "Infekčné a parazitové choroba ", "Choroby močovopohlavnej sústavy",
-            "Choroby kože a podkožného tkaniva", "Kódy na osobitné účely", "Infekčné a parazitové choroby", "Duševné poruchy a poruchy správania",
-            "Endokrinné, nutričné a metabolické choroby", "Choroby nervovej sústavy"]) : null
-        };
-    });
-}
-
-module.exports = {generalize, kAnonymity, lDiversity, tCloseness,randomMasking}
+            VEK: faker.number.int({ min:

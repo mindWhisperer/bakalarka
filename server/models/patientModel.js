@@ -46,7 +46,7 @@ class PatientModel {
 
         try {
             const result = await connection.execute(
-                `SELECT MENO, PRIEZVISKO, OS.ROD_CISLO, P.ID_PACIENTA, TYP_KRVI, CH.TYP as TYP_CHOROBY,
+                `SELECT MENO, PRIEZVISKO, P.ID_PACIENTA, TYP_KRVI,
                 FLOOR(MONTHS_BETWEEN(SYSDATE,
                     CASE 
                         WHEN TO_NUMBER(SUBSTR(OS.ROD_CISLO, 1, 2)) < 25 
@@ -70,7 +70,7 @@ class PatientModel {
                 CASE 
                     WHEN TO_NUMBER(SUBSTR(OS.ROD_CISLO, 3, 2)) > 50 THEN 'Z' 
                     ELSE 'M' 
-                END AS POHLAVIE
+                END AS POHLAVIE, CH.TYP as TYP_CHOROBY
             FROM NIS_BC.PACIENT P
             JOIN NIS_BC.ZDRAVOTNA_KARTA ZK ON P.ID_PACIENTA = ZK.ID_PACIENTA
             JOIN NIS_BC.ZOZNAM_OCHORENI ZO ON ZK.ID_KARTY = ZO.ID_KARTY
