@@ -3,7 +3,7 @@ const PatientModel = require("../models/patientModel");
 class PatientController {
     static async getPatients(req, res) {
         try {
-            const patients = await PatientModel.getAllPatients();
+            const patients = await PatientModel.getAllHospitalizedPatients();
             res.json(patients);
         } catch (error) {
             console.error(error);
@@ -13,3 +13,4 @@ class PatientController {
 }
 
 module.exports = PatientController;
+
