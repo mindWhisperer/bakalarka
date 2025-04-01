@@ -72,7 +72,7 @@ const Home = ({view}) => {
                 </>
             ) : (
                 <>
-                    <h2>Anonymizované dáta pomocou algoritmu {getMethodName(selectedMethod)}</h2>
+                    <h2>Anonymizované dáta metódou {getMethodName(selectedMethod)}</h2>
                     <select id="anonymizationMethod" value={selectedMethod} onChange={handleMethodChange}>
                         <option value="generalization">Generalizácia</option>
                         <option value="k-anonymity">K-Anonymita</option>

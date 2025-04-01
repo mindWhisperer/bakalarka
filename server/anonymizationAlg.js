@@ -1,4 +1,6 @@
 const { faker } = require('@faker-js/faker');
+const Papa = require('papaparse');
+const fs = require('fs');
 
 const generalize = (data) => {
     return data.map(record => {
@@ -37,7 +39,7 @@ const getRandomColor = () => {
 }
 
 const kAnonymity = (data) => {
-    const k = 3;
+    const k = 5;
     const generalizedData = generalize(data);
 
     const groups = {};
@@ -90,23 +92,28 @@ const lDiversity = (data) => {
     });
 
     const anonymizedData = [];
-    Object.values(groups).forEach(group => {
+    const removedGroups = {}
+
+    Object.entries(groups).forEach(([key, group]) => {
         const uniqueBloodTypes = new Set(group.map(item => item.TYP_KRVI));
         const uniqueDiseaseTypes = new Set(group.map(item => item.TYP_CHOROBY));
 
-        if (uniqueBloodTypes.size >= l && uniqueDiseaseTypes.size >= l) {
+        if (uniqueBloodTypes.size >= l || uniqueDiseaseTypes.size >= l) {
             anonymizedData.push(...group.map(record => {
                 const anonymizedRecord = { ...record };
                 delete anonymizedRecord.MENO;
                 delete anonymizedRecord.PRIEZVISKO;
 
-                anonymizedRecord.color = groupColors[`${record.VEK}-${record.POHLAVIE}-${record.ID_PACIENTA}`];
+                anonymizedRecord.color = groupColors[key];
 
                 return anonymizedRecord;
             }));
+        } else {
+            removedGroups[key] = group;
         }
     });
 
+    console.log("Odstránené skupiny:", removedGroups);
     return anonymizedData;
 };
 
@@ -114,13 +121,112 @@ const tCloseness = () => {
 
 };
 
+function generateRandomBIN() {
+    const year = Math.floor(Math.random() * (2024-1950+1))+1950;
+    const month = Math.floor(Math.random() * 12)+1;
+    const day = Math.floor(Math.random() * 28)+1;
+    const isFemale = Math.random() < 0.5;
+    const randNumber = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+
+    const formYear = year.toString().slice(-2);
+    const formMonth = (month + (isFemale ? 50 : 0)).toString().padStart(2, '0');
+    const formDay = day.toString().padStart(2, '0');
+
+    const bin = `${formYear}${formMonth}${formDay}/${randNumber}`;
+    const birthDate = new Date(year, month-1, day);
+
+    return {bin, birthDate, isFemale};
+}
+
+function getAge(birthDate) {
+    const currentDate = new Date();
+    const year = birthDate.getFullYear();
+    const month = birthDate.getMonth();
+    const day = birthDate.getDate();
+
+    let age = currentDate.getFullYear() - year;
+
+    if (
+        currentDate.getMonth() < month ||
+        (currentDate.getMonth() === month && currentDate.getDate() < day)
+    ) {
+        age--;
+    }
+
+    return age;
+}
+
+function getGender (isFemale) {
+    return isFemale ? 'Z' : 'M';
+}
+
+const usedPatientsId = [];
+
+function generatePatientsId() {
+    let newId;
+    do {
+        newId = Math.floor(Math.random() * 99999) + 1;
+    } while (usedPatientsId.includes(newId));
+
+    usedPatientsId.push(newId);
+    return newId;
+}
+
+function loadCSV(filePath) {
+    const csvFile = fs.readFileSync(filePath, 'utf-8');
+    const parsedData = Papa.parse(csvFile, {
+        header: false,
+        skipEmptyLines: true
+    });
+
+    return parsedData.data.map(row => row[0]);
+}
+
+function getRandomNameAndSurname(isFemale) {
+    const maleNames = loadCSV('data/male_names.csv');
+    const femaleNames = loadCSV('data/female_names.csv');
+    const maleSurnames = loadCSV('data/male_surrname.csv');
+    const femaleSurnames = loadCSV('data/female_surrname.csv');
+
+    const randomName = isFemale
+        ? femaleNames[Math.floor(Math.random() * femaleNames.length)]
+        : maleNames[Math.floor(Math.random() * maleNames.length)];
+
+    const randomSurname = isFemale
+        ? femaleSurnames[Math.floor(Math.random() * femaleSurnames.length)]
+        : maleSurnames[Math.floor(Math.random() * maleSurnames.length)];
+
+    return {
+        name: randomName,
+        surname: randomSurname
+    };
+}
+
 const randomMasking =(data) => {
     return data.map(() => {
-        const idPacienta = Math.random() < 0.1 ? null : faker.string.numeric(faker.number.int({ min: 2, max: 5 }));
+        const idPatient = Math.random() < 0.1 ? null : generatePatientsId();
+        const {bin, birthDate, isFemale} = generateRandomBIN();
+        const age = getAge(birthDate);
+        const gender = getGender(isFemale);
+        const { name, surname } = getRandomNameAndSurname(isFemale);
 
         return {
-            MENO: faker.person.firstName(),
-            PRIEZVISKO: faker.person.lastName(),
-            ID_PACIENTA: idPacienta,
-            TYP_KRVI: idPacienta ? faker.helpers.arrayElement(["A+", "A-", "B+", "B-", "AB+", "AB-", "0+", "0-"]) : null,
-            VEK: faker.number.int({ min:
+            MENO: name,
+            PRIEZVISKO: surname,
+            ID_PACIENTA: idPatient,
+            ROD_CISLO: bin,
+            TYP_KRVI: idPatient ? faker.helpers.arrayElement(["A+", "A-", "B+", "B-", "AB+", "AB-", "0+", "0-"]) : null,
+            VEK: age,
+            POHLAVIE: gender,
+            TYP_CHOROBY: idPatient ? faker.helpers.arrayElement(["Choroby krvi a krvotvorných orgánov", "Choroby svalovej a kostrovej sústavy a spojivového tkaniva",
+                "Faktory ovplyvňujúce zdravotný stav a styk so zdravotníckymi službami", "Poranenia, otravy a niektoré iné následky vonkajších príčin",
+                "Vrodené chyby, deformity a chromozómové anomálie", "Vonkajšie príčiny chorobnosti a úmrtnosti",
+                "Choroby dýchacej sústavy", "Choroby tráviacej sústavy", "Choroby ucha a hlávkového výbežku", "Choroby obehovej sústavy",
+            "Choroby oka a očných adnexov", "Nádory", "Infekčné a parazitové choroba ", "Choroby močovopohlavnej sústavy",
+            "Choroby kože a podkožného tkaniva", "Kódy na osobitné účely", "Infekčné a parazitové choroby", "Duševné poruchy a poruchy správania",
+            "Endokrinné, nutričné a metabolické choroby", "Choroby nervovej sústavy"]) : null
+        };
+    });
+}
+
+module.exports = {generalize, kAnonymity, lDiversity, tCloseness,randomMasking}
