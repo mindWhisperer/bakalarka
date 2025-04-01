@@ -30,6 +30,7 @@ th {
     font-size: 16px;
     font-weight: 600;
     min-width: 40px;
+    height: 30px;
 }
 
 td {
@@ -39,6 +40,7 @@ td {
     color: #333333;
     border: 1px solid #ddd;
     min-width: 40px;
+    height: 30px;
 }
 
 /* Tlačidlá */
