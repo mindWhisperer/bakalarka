@@ -89,4 +89,19 @@ function getRandomNameAndSurname(isFemale) {
     };
 }
 
-module.exports = {getRandomNameAndSurname, getRandomColor, getAge, generateRandomBIN, generatePatientsId, getGender}
+const dataGroup = (data, keyAttributes) => {
+    const groups = {};
+    const groupColors = {};
+    data.forEach(record => {
+        const key = keyAttributes.map(attribute => record[attribute]).join("-");
+        if (!groups[key]) {
+            groups[key] = [];
+            groupColors[key] = getRandomColor();
+        }
+        groups[key].push(record);
+    });
+    return { groups, groupColors };
+};
+
+
+module.exports = {getRandomNameAndSurname, getAge, generateRandomBIN, generatePatientsId, getGender,dataGroup}

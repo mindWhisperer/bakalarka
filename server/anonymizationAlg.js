@@ -1,6 +1,5 @@
 const { faker } = require('@faker-js/faker');
-const { getRandomColor, generatePatientsId, generateRandomBIN, getAge, getRandomNameAndSurname, getGender } = require('./helpers');
-
+const { generatePatientsId, generateRandomBIN, getAge, getRandomNameAndSurname, getGender, dataGroup } = require('./helpers');
 
 const generalize = (data) => {
     return data.map(record => {
@@ -35,16 +34,7 @@ const kAnonymity = (data) => {
     const k = 5;
     const generalizedData = generalize(data);
 
-    const groups = {};
-    const groupColors = {}
-    generalizedData.forEach(record => {
-        const key = `${record.VEK}-${record.POHLAVIE}-${record.TYP_KRVI}-${record.ID_PACIENTA}-${record.TYP_CHOROBY}`;
-        if (!groups[key]) {
-            groups[key] = [];
-            groupColors[key] = getRandomColor();
-        }
-        groups[key].push(record);
-    });
+    const { groups, groupColors } = dataGroup(generalizedData, ["VEK", "POHLAVIE", "TYP_KRVI", "ID_PACIENTA", "TYP_CHOROBY"]);
 
     // odstranenie mensich skupin ako k
     const anonymizedData = [];
@@ -55,7 +45,7 @@ const kAnonymity = (data) => {
                 const anonymizedRecord = { ...record };
                 delete anonymizedRecord.MENO;
                 delete anonymizedRecord.PRIEZVISKO;
-                anonymizedRecord.color = groupColors[key];  // Farba skupiny
+                anonymizedRecord.color = groupColors[key];
 
                 return anonymizedRecord;
             }));
@@ -72,17 +62,7 @@ const lDiversity = (data) => {
     const l = 2;
     const generalizedData = generalize(data);
 
-    const groups = {};
-    const groupColors = {}
-
-    generalizedData.forEach(record => {
-        const key = `${record.VEK}-${record.POHLAVIE}-${record.ID_PACIENTA}`;
-        if (!groups[key]) {
-            groups[key] = [];
-            groupColors[key] = getRandomColor();
-        }
-        groups[key].push(record);
-    });
+    const { groups, groupColors } = dataGroup(generalizedData, ["VEK", "POHLAVIE", "ID_PACIENTA"]);
 
     const anonymizedData = [];
     const removedGroups = {}
@@ -126,7 +106,6 @@ const randomMasking =(data) => {
             MENO: name,
             PRIEZVISKO: surname,
             ID_PACIENTA: idPatient,
-            ROD_CISLO: bin,
             TYP_KRVI: idPatient ? faker.helpers.arrayElement(["A+", "A-", "B+", "B-", "AB+", "AB-", "0+", "0-"]) : null,
             VEK: age,
             POHLAVIE: gender,
