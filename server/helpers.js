@@ -103,5 +103,31 @@ const dataGroup = (data, keyAttributes) => {
     return { groups, groupColors };
 };
 
+const calculateDistribution = (data, attribute) => {
+    const total = data.length;
+    const counts = data.reduce((acc, item) => {
+        const value = item[attribute];
+        if (value !== undefined && value !== null) {
+            acc[value] = (acc[value] || 0) + 1;
+        }
+        return acc;
+    }, {});
 
-module.exports = {getRandomNameAndSurname, getAge, generateRandomBIN, generatePatientsId, getGender,dataGroup}
+    return Object.keys(counts).reduce((dist, key) => {
+        dist[key] = counts[key] / total;
+        return dist;
+    }, {});
+};
+
+const calculateEMD = (dist1, dist2) => {
+    const keys = new Set([...Object.keys(dist1), ...Object.keys(dist2)]);
+    let emd = 0;
+
+    keys.forEach(key => {
+        emd += Math.abs((dist1[key] || 0) - (dist2[key] || 0));
+    });
+
+    return emd / 2;
+};
+
+module.exports = {getRandomNameAndSurname, getAge, generateRandomBIN, generatePatientsId, getGender,dataGroup, computeDistribution: calculateDistribution, computeEMD: calculateEMD}

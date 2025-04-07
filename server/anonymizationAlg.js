@@ -90,8 +90,58 @@ const lDiversity = (data) => {
     return anonymizedData;
 };
 
-const tCloseness = () => {
 
+const tCloseness = (data, t = 0.3) => {
+    const generalizedData = generalize(data);
+
+    const globalDist = computeDistribution(generalizedData, "TYP_CHOROBY");
+    const globalDistBlood = computeDistribution(generalizedData, "TYP_KRVI");
+
+    console.log("Celkové rozdelenie: ", globalDist);
+    console.log("Celkové rozdelenie krvných skupín: ", globalDistBlood);
+
+    const { groups, groupColors } = dataGroup(generalizedData,  ["VEK", "POHLAVIE"]);
+
+    const anonymizedData = [];
+    const removedGroups = {}; 
+
+    Object.entries(groups).forEach(([key, group]) => {
+        const localDist = computeDistribution(group, "TYP_CHOROBY");
+        const localDistBlood = computeDistribution(group, "TYP_KRVI");
+
+        console.log(`Distribúcia pre skupinu ${key} :`, localDist);
+        console.log(`Distribúcia pre skupinu ${key} (krvné skupiny):`, localDistBlood);
+
+        const emd = computeEMD(globalDist, localDist);
+        const emdBlood = computeEMD(globalDistBlood, localDistBlood);
+
+        if (emd <= t && emdBlood <= t) {
+            anonymizedData.push(...group.map(record => {
+                const anonymizedRecord = { ...record };
+                delete anonymizedRecord.MENO;
+                delete anonymizedRecord.PRIEZVISKO;
+                delete anonymizedRecord.ID_PACIENTA;
+
+                anonymizedRecord.color = groupColors[key];
+
+                return anonymizedRecord;
+            }));
+        } else {
+            removedGroups[key] = {
+                localDist: localDist,
+                bloodDist: localDistBlood
+            };
+        }
+    });
+
+    console.log("Odstránené skupiny:");
+    Object.entries(removedGroups).forEach(([key, value]) => {
+        console.log(`Skupina ${key} :`);
+        console.log(`Distribúcia v odstránenej skupine ${key} :`, value.localDist);
+        console.log(`Distribúcia krvných skupín v odstránenej skupine ${key} :`, value.bloodDist);
+    });
+
+    return anonymizedData;
 };
 
 const randomMasking =(data) => {
