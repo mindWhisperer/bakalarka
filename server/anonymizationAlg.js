@@ -1,17 +1,17 @@
 const { faker } = require('@faker-js/faker');
-const { generatePatientsId, generateRandomBIN, getAge, getRandomNameAndSurname, getGender, dataGroup } = require('./helpers');
+const { generatePatientsId, generateRandomBIN, getAge, getRandomNameAndSurname, getGender, dataGroup, computeDistribution, computeEMD } = require('./helpers');
 
 const generalize = (data) => {
     return data.map(record => {
         const age = Math.floor(record.VEK);
         let genVek = null;
         if (age) {
-            //if (age < 20) genVek = "Pod 20";
-            if (age < 30) genVek = "Pod 30";
+            if (age < 20) genVek = "Pod 20";
+            else if (age < 30) genVek = "20-29";
             else if (age < 40) genVek = "30-39";
             else if (age < 50) genVek = "40-49";
-            //else if (age < 60) genVek = "50-59";
-            else genVek = "50+";
+            else if (age < 60) genVek = "50-59";
+            else genVek = "60+";
         }
 
         const genKrvnaSkupina = record.TYP_KRVI ? record.TYP_KRVI.replace(/[+-]/, "") : null;
@@ -31,10 +31,10 @@ const generalize = (data) => {
 };
 
 const kAnonymity = (data) => {
-    const k = 5;
+    const k = 10;
     const generalizedData = generalize(data);
 
-    const { groups, groupColors } = dataGroup(generalizedData, ["VEK", "POHLAVIE", "TYP_KRVI", "ID_PACIENTA", "TYP_CHOROBY"]);
+    const { groups, groupColors } = dataGroup(generalizedData, ["VEK", "POHLAVIE"]);
 
     // odstranenie mensich skupin ako k
     const anonymizedData = [];
@@ -45,6 +45,7 @@ const kAnonymity = (data) => {
                 const anonymizedRecord = { ...record };
                 delete anonymizedRecord.MENO;
                 delete anonymizedRecord.PRIEZVISKO;
+                delete anonymizedRecord.ID_PACIENTA;
                 anonymizedRecord.color = groupColors[key];
 
                 return anonymizedRecord;
@@ -59,10 +60,10 @@ const kAnonymity = (data) => {
 };
 
 const lDiversity = (data) => {
-    const l = 2;
+    const l = 3;
     const generalizedData = generalize(data);
 
-    const { groups, groupColors } = dataGroup(generalizedData, ["VEK", "POHLAVIE", "ID_PACIENTA"]);
+    const { groups, groupColors } = dataGroup(generalizedData, ["VEK", "POHLAVIE"]);
 
     const anonymizedData = [];
     const removedGroups = {}
@@ -71,11 +72,12 @@ const lDiversity = (data) => {
         const uniqueBloodTypes = new Set(group.map(item => item.TYP_KRVI));
         const uniqueDiseaseTypes = new Set(group.map(item => item.TYP_CHOROBY));
 
-        if (uniqueBloodTypes.size >= l || uniqueDiseaseTypes.size >= l) {
+        if (uniqueBloodTypes.size >= l && uniqueDiseaseTypes.size >= l) {
             anonymizedData.push(...group.map(record => {
                 const anonymizedRecord = { ...record };
                 delete anonymizedRecord.MENO;
                 delete anonymizedRecord.PRIEZVISKO;
+                delete anonymizedRecord.ID_PACIENTA;
 
                 anonymizedRecord.color = groupColors[key];
 
@@ -147,7 +149,7 @@ const tCloseness = (data, t = 0.3) => {
 const randomMasking =(data) => {
     return data.map(() => {
         const idPatient = Math.random() < 0.1 ? null : generatePatientsId();
-        const {bin, birthDate, isFemale} = generateRandomBIN();
+        const { birthDate, isFemale} = generateRandomBIN();
         const age = getAge(birthDate);
         const gender = getGender(isFemale);
         const { name, surname } = getRandomNameAndSurname(isFemale);
