@@ -29,14 +29,16 @@ const DataTable = ({ data }) => {
 
     return (
         <div className="table-wrapper">
-            <div className="controls">
-                <label>Záznamov na stránke:</label>
+            <div className="records-controls">
+                <label htmlFor="recordsSelect">Počet záznamov na stránke:</label>
                 <select
+                    id="recordsSelect"
                     value={recordsPerPage}
                     onChange={(e) => {
                         setRecordsPerPage(Number(e.target.value));
                         setCurrentPage(1);
                     }}
+                    className="records-select"
                 >
                     {RECORDS_PER_PAGE_OPTIONS.map((opt) => (
                         <option key={opt} value={opt}>{opt}</option>

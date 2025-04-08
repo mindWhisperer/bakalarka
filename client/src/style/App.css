@@ -22,11 +22,6 @@ h1 {
     border-spacing: 0 1rem;
 }
 
-.patient-table thead {
-    background-color: #2d3748;
-    border-radius: 0.75rem;
-}
-
 .patient-table thead th {
     padding: 1rem 1.5rem;
     font-size: 1rem;
@@ -38,7 +33,6 @@ h1 {
 }
 
 .patient-table tbody tr {
-    background-color: #1f2937;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     transition: transform 0.2s ease;
     border-radius: 0.75rem;
@@ -376,5 +370,50 @@ body.dark .pagination button:active {
 
 body.dark .page-title {
     color: #f9fafb;
+}
+
+.records-controls {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.records-controls label {
+    color: #1f2937;
+}
+
+.records-select {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    background-color: white;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.records-select:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+/* Dark mode */
+body.dark .records-controls label {
+    color: #e5e5e5;
+}
+
+body.dark .records-select {
+    background-color: #1f2937;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+
+body.dark .records-select:hover {
+    background-color: #374151;
 }
 
