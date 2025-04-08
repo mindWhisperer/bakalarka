@@ -16,31 +16,79 @@ h1 {
 }
 
 /* Tabuľka */
-table {
+.patient-table {
     width: 100%;
-    margin: 20px auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-collapse: separate;
+    border-spacing: 0 1rem;
 }
 
-th {
-    background-color: #4CAF50;
+.patient-table thead {
+    background-color: #2d3748;
+    border-radius: 0.75rem;
+}
+
+.patient-table thead th {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    color: #e2e8f0;
+    text-align: center;
+    background-color: #2d3748;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.patient-table tbody tr {
+    background-color: #1f2937;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease;
+    border-radius: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.patient-table td {
+    padding: 1rem;
+    color: black;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.gender-icon {
+    height: 32px;
+    width: 32px;
+    border-radius: 9999px;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px #4f46e5;
+}
+
+.pagination {
+    margin-top: 1.5rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pagination button {
+    background: #4f46e5;
     color: white;
-    text-align: center;
-    padding: 12px 20px;
-    font-size: 16px;
-    font-weight: 600;
-    min-width: 40px;
-    height: 30px;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
 }
 
-td {
-    text-align: center;
-    padding: 10px 20px;
-    font-size: 14px;
-    color: #333333;
-    border: 1px solid #ddd;
-    min-width: 40px;
-    height: 30px;
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.table-wrapper {
+    background-color: #c3c3c3;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
 }
 
 /* Tlačidlá */
@@ -93,18 +141,6 @@ body.dark #anonymizationMethod {
     border: 1px solid #444;
 }
 
-body.dark .nav-container {
-    background-color: #1a202c;
-}
-
-body.dark .nav-item:hover {
-    color: #a0aec0;
-}
-
-body.dark table {
-    background-color: #1e1e1e;
-}
-
 body.dark th {
     background-color: #333333;
 }
@@ -148,3 +184,197 @@ body.dark button:active {
 #home {
     margin: 2% 10% 10% 10%;
 }
+
+.home-container {
+    padding: 2rem;
+}
+
+.section-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #1f2937;
+}
+
+body.dark .section-title {
+    color: #f9fafb;
+}
+
+.anonymization-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.method-select {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    background-color: white;
+    font-weight: 500;
+}
+
+body.dark .method-select {
+    background-color: #1f2937;
+    color: white;
+    border-color: #4b5563;
+}
+
+.btn-anonymize {
+    background-color: #fff;
+    color: black;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-anonymize:hover {
+    background-color: #c3c3c3;
+    transform: scale(1.05);
+}
+
+
+body.dark button:active {
+    background-color: #555;
+    transform: scale(0.98);
+}
+
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 6px solid #e5e7eb;
+    border-top: 6px solid #4f46e5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-text {
+    color: red;
+    font-weight: 500;
+    padding: 1rem;
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+
+/* Štýly pre tabuľku v tmavom režime */
+body.dark .table-wrapper {
+    background-color: #2d3748; /* Tmavé pozadie pre tabuľku */
+    color: #e5e5e5; /* Svetlý text */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+}
+
+body.dark .table-header {
+    background-color: #1a202c; /* Tmavšie pozadie pre hlavičku */
+    color: #e5e5e5; /* Svetlý text */
+    border-bottom: 2px solid #4a5568; /* Tmavšia čiara pre oddelenie */
+}
+
+body.dark .header-cell {
+    padding: 0.5rem;
+    text-align: center;
+    flex: 1;
+    color: #e5e5e5;
+}
+
+/* Tabuľkové karty pre tmavý režim */
+body.dark .patient-card {
+    background-color: #2d3748;  /* Tmavé pozadie pre kartu */
+    border-radius: 1rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Zvýraznený tieň pre tmavý režim */
+    color: #e5e5e5;  /* Svetlý text */
+}
+
+body.dark .patient-card .cell {
+    font-size: 0.9rem;
+    text-align: center;
+    flex: 1;
+}
+
+body.dark .patient-card .cell img {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
+
+/* Paginácia v tmavom režime */
+body.dark .pagination button {
+    background: #4f46e5;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+body.dark .pagination button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+body.dark .pagination button:hover {
+    background: #6366f1;  /* Svetlejšia farba pri hover */
+}
+
+body.dark .pagination button:active {
+    background: #4338ca;  /* Tmavšia farba pri kliknutí */
+}
+
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #4f46e5;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.page-title {
+    text-align: center;
+    margin: 1rem 2rem 2rem auto;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1f2937; /* tmavosivá */
+}
+
+body.dark .page-title {
+    color: #f9fafb;
+}
+

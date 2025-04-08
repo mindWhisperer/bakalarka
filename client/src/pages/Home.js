@@ -44,11 +44,6 @@ const Home = ({view}) => {
         }
     };
 
-    // Funkcia na zmenu vybratej metódy anonymizácie
-    const handleMethodChange = (event) => {
-        setSelectedMethod(event.target.value);
-    };
-
     const getMethodName = (method) => {
         const methods = {
             "generalization": "Generalizácie",
@@ -61,27 +56,43 @@ const Home = ({view}) => {
     };
 
     return (
-        <div id={"home"}>
-            {error && <p>{error}</p>}
+        <div className="home-container">
+            {error && <p className="error-text">{error}</p>}
+
             {loading ? (
-                <p>Načítavam údaje...</p>
+                <div className="loader-container">
+                    <div className="spinner"/>
+                    <p>Načítavam údaje...</p>
+                </div>
             ) : view === "zoznam" ? (
                 <>
-                    <h2>Zoznam pacientov</h2>
-                    <DataTable data={data} />
+                    <h1 className="page-title"> Zoznam pacientov</h1>
+
+                    <DataTable data={data}/>
                 </>
             ) : (
                 <>
-                    <h2>Anonymizované dáta metódou {getMethodName(selectedMethod)}</h2>
-                    <select id="anonymizationMethod" value={selectedMethod} onChange={handleMethodChange}>
-                        <option value="generalization">Generalizácia</option>
-                        <option value="k-anonymity">K-Anonymita</option>
-                        <option value="l-diversity">L-Diverzita</option>
-                        <option value="t-closeness">T-Uzavretosť</option>
-                        <option value="random-masking">Náhodné maskovanie</option>
-                    </select>
-                    <button onClick={handleAnonymize}>Anonymizovať dáta</button>
-                    {anonymizedData.length > 0 && <DataTable data={anonymizedData} />}
+                <h2 className="section-title">Anonymizované dáta metódou {getMethodName(selectedMethod)}</h2>
+
+                    <div className="anonymization-controls">
+                        <select
+                            id="anonymizationMethod"
+                            value={selectedMethod}
+                            onChange={(e) => setSelectedMethod(e.target.value)}
+                            className="method-select"
+                        >
+                            <option value="generalization">Generalizácia</option>
+                            <option value="k-anonymity">K-Anonymita</option>
+                            <option value="l-diversity">L-Diverzita</option>
+                            <option value="t-closeness">T-Uzavretosť</option>
+                            <option value="random-masking">Náhodné maskovanie</option>
+                        </select>
+
+                        <button className="btn-anonymize" onClick={handleAnonymize}>
+                            Anonymizovať dáta
+                        </button>
+                    </div>
+                    {anonymizedData.length > 0 && <DataTable data={anonymizedData}/>}
                 </>
             )}
         </div>
