@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "../components/DataTable";
 import { fetchData, anonymizeData } from "../services/api";
-import '../style/App.css';
+import "../style/App.css";
 
-const Home = ({view}) => {
+const methodParamMap = {
+    "anonymizacia": "generalization",
+    "k_anonymita": "k-anonymity",
+    "l_diverzita": "l-diversity",
+    "t_uzavretost": "t-closeness",
+    "nahodne_maskovanie": "random-masking",
+};
+
+const Home = ({ view }) => {
     const [data, setData] = useState([]);
     const [anonymizedData, setAnonymizedData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedMethod, setSelectedMethod] = useState("generalization"); // Predvolená metóda
 
-    // Načítanie dát pri načítaní komponentu
+    // Načítanie dát po načítaní komponentu
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -30,12 +37,39 @@ const Home = ({view}) => {
         loadData();
     }, []);
 
-    // Funkcia na anonymizáciu dát
+    // Automatická anonymizácia pri zmene view
+    useEffect(() => {
+        const shouldAutoAnonymize = Object.keys(methodParamMap).includes(view);
+
+        const autoAnonymize = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const method = methodParamMap[view] || "generalization";
+                const anonymized = await anonymizeData(data, method);
+                setAnonymizedData(anonymized);
+            } catch (err) {
+                setError("Chyba pri automatickej anonymizácii dát.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (shouldAutoAnonymize && data.length > 0) {
+            autoAnonymize();
+        }
+    }, [view, data]);
+
+    // Manuálne anonymizovanie cez button
     const handleAnonymize = async () => {
         setLoading(true);
+        setError(null);
+
         try {
             // Posielame dáta a vybranú metódu anonymizácie
-            const anonymized = await anonymizeData(data, selectedMethod);
+            const method = methodParamMap[view] || "generalization";
+            const anonymized = await anonymizeData(data, method);
             setAnonymizedData(anonymized);  // Uložíme anonymizované dáta
         } catch (error) {
             setError("Chyba pri anonymizácii dát.");
@@ -61,38 +95,27 @@ const Home = ({view}) => {
 
             {loading ? (
                 <div className="loader-container">
-                    <div className="spinner"/>
+                    <div className="spinner" />
                     <p>Načítavam údaje...</p>
                 </div>
             ) : view === "zoznam" ? (
                 <>
-                    <h1 className="page-title"> Zoznam pacientov</h1>
-
-                    <DataTable data={data}/>
+                    <h1 className="page-title">Zoznam pacientov</h1>
+                    <DataTable data={data} />
                 </>
             ) : (
                 <>
-                <h2 className="section-title">Anonymizované dáta metódou {getMethodName(selectedMethod)}</h2>
+                    <h2 className="section-title">
+                        Anonymizované dáta metódou {getMethodName(view)}
+                    </h2>
 
                     <div className="anonymization-controls">
-                        <select
-                            id="anonymizationMethod"
-                            value={selectedMethod}
-                            onChange={(e) => setSelectedMethod(e.target.value)}
-                            className="method-select"
-                        >
-                            <option value="generalization">Generalizácia</option>
-                            <option value="k-anonymity">K-Anonymita</option>
-                            <option value="l-diversity">L-Diverzita</option>
-                            <option value="t-closeness">T-Uzavretosť</option>
-                            <option value="random-masking">Náhodné maskovanie</option>
-                        </select>
-
                         <button className="btn-anonymize" onClick={handleAnonymize}>
-                            Anonymizovať dáta
+                            Anonymizovať znova
                         </button>
                     </div>
-                    {anonymizedData.length > 0 && <DataTable data={anonymizedData}/>}
+
+                    {anonymizedData.length > 0 && <DataTable data={anonymizedData} />}
                 </>
             )}
         </div>
