@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "../components/DataTable";
+import Charts from "../components/Chart";
 import { fetchData, anonymizeData } from "../services/api";
 import "../style/App.css";
 
@@ -14,8 +15,10 @@ const methodParamMap = {
 const Home = ({ view }) => {
     const [data, setData] = useState([]);
     const [anonymizedData, setAnonymizedData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [executionTime, setExecutionTime] = useState(null);
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [setCurrentChart] = useState(null);
 
     // Načítanie dát po načítaní komponentu
     useEffect(() => {
@@ -26,15 +29,17 @@ const Home = ({ view }) => {
 
             if (response === null) {
                 setError("Nepodarilo sa načítať dáta zo servera.");
-                setLoading(false);
-                return;
+            } else {
+                setData(response);
             }
-
-            setData(response);
             setLoading(false);
         };
 
-        loadData();
+        loadData().catch((err) => {
+            console.error("Chyba pri načítaní dát:", err);
+            setError("Nastala chyba pri načítaní dát.");
+            setLoading(false);
+        });
     }, []);
 
     // Automatická anonymizácia pri zmene view
@@ -46,18 +51,30 @@ const Home = ({ view }) => {
             setError(null);
 
             try {
-                const method = methodParamMap[view] || "generalization";
-                const anonymized = await anonymizeData(data, method);
-                setAnonymizedData(anonymized);
+                const method = methodParamMap[view];
+                const response = await anonymizeData(data, method);
+                console.log("Server response:", response);
+
+                if (response && response.data) {
+                    setAnonymizedData(response.data);
+                    setExecutionTime(response.duration);
+                    setCurrentChart({ method: response.method, duration: response.duration });
+                } else {
+                    setError("Chyba pri automatickej anonymizácii dát.");
+                }
             } catch (err) {
-                setError("Chyba pri automatickej anonymizácii dát.");
+                //setError("Chyba pri anonymizácii.");
             } finally {
                 setLoading(false);
             }
         };
 
         if (shouldAutoAnonymize && data.length > 0) {
-            autoAnonymize();
+            autoAnonymize().catch(err => {
+                console.error("Unhandled anonymization error:", err);
+                setError("Neočakávaná chyba pri anonymizácii.");
+                setLoading(false);
+            });
         }
     }, [view, data]);
 
@@ -67,12 +84,19 @@ const Home = ({ view }) => {
         setError(null);
 
         try {
-            // Posielame dáta a vybranú metódu anonymizácie
-            const method = methodParamMap[view] || "generalization";
-            const anonymized = await anonymizeData(data, method);
-            setAnonymizedData(anonymized);  // Uložíme anonymizované dáta
+            const method = methodParamMap[view];
+            const response = await anonymizeData(data, method);
+            console.log("Server response (manual):", response);
+
+            if (response && response.data) {
+                setAnonymizedData(response.data);
+                setExecutionTime(response.duration);
+                setCurrentChart({ method: response.method, duration: response.duration });
+            } else {
+                setError("Chyba pri spracovaní anonymizovaných dát.");
+            }
         } catch (error) {
-            setError("Chyba pri anonymizácii dát.");
+            //setError("Chyba pri anonymizácii.");
         } finally {
             setLoading(false);
         }
@@ -80,11 +104,11 @@ const Home = ({ view }) => {
 
     const getMethodName = (method) => {
         const methods = {
-            "generalization": "Generalizácie",
-            "k-anonymity": "K-Anonymity",
-            "l-diversity": "L-Diverzity",
-            "t-closeness": "T-Uzavretosti",
-            "random-masking": "Náhodného maskovania"
+            "anonymizacia": "Generalizácie",
+            "k_anonymita": "K-Anonymity",
+            "l_diverzita": "L-Diverzity",
+            "t_uzavretost": "T-Uzavretosti",
+            "nahodne_maskovanie": "Náhodného maskovania"
         };
         return methods[method] || "neurčenej metódy";
     };
@@ -103,6 +127,8 @@ const Home = ({ view }) => {
                     <h1 className="page-title">Zoznam pacientov</h1>
                     <DataTable data={data} />
                 </>
+            ) : view === "grafy" ? (
+                <Charts />
             ) : (
                 <>
                     <h2 className="section-title">
@@ -114,6 +140,10 @@ const Home = ({ view }) => {
                             Anonymizovať znova
                         </button>
                     </div>
+
+                    {executionTime !== null && (
+                        <p><strong>Čas vykonania:</strong> {executionTime.toFixed(2)} ms</p>
+                    )}
 
                     {anonymizedData.length > 0 && <DataTable data={anonymizedData} />}
                 </>

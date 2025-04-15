@@ -1,4 +1,4 @@
-const { generalize, kAnonymity, lDiversity, tCloseness, randomMasking } = require("../anonymizationAlg");
+const { measureAnonymization } = require('../metricks.js');
 
 class AnonymizationController {
     static async anonymizeData(req, res) {
@@ -9,32 +9,21 @@ class AnonymizationController {
         }
 
         let anonymizedData;
+        let duration = 0;
 
         try {
-            // Výber správneho anonymizačného algoritmu
-            switch (method) {
-                case "generalization":
-                    anonymizedData = generalize(data);
-                    break;
-                case "k-anonymity":
-                    anonymizedData = kAnonymity(data);
-                    break;
-                case "l-diversity":
-                    anonymizedData = lDiversity(data);
-                    break;
-                case "t-closeness":
-                    anonymizedData = tCloseness(data);
-                    break;
-                case "random-masking":
-                    anonymizedData = randomMasking(data);
-                    break;
-                default:
-                    anonymizedData = generalize(data); // Predvolená metóda
-            }
+            // Spustenie metódy + meranie času
+            const result = measureAnonymization(method, data);
 
-            // await AnonymizationModel.saveAnonymizedData(anonymizedData, method);
+            anonymizedData = result?.result ?? [];
+            duration = typeof result?.duration === 'number' ? result.duration : 0;
 
-            res.json(anonymizedData); // Pošle anonymizované dáta ako odpoveď
+            res.json({
+                method,
+                duration,
+                data: anonymizedData
+            });
+
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Chyba pri anonymizácii údajov.' });

@@ -109,32 +109,6 @@ button:active {
     transform: scale(0.98);
 }
 
-#anonymizationMethod {
-    background-color: #f0f0f0;
-    color: #333;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
-    width: 250px;
-    appearance: none;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    margin-left: 10%;
-}
-
-#anonymizationMethod:hover {
-    background-color: #e0e0e0;
-    border-color: #666;
-}
-
-body.dark #anonymizationMethod {
-    background-color: #333;
-    color: #fff;
-    border: 1px solid #444;
-}
-
 body.dark th {
     background-color: #333333;
 }
@@ -188,6 +162,7 @@ body.dark button:active {
     font-weight: 600;
     margin-bottom: 1.5rem;
     color: #1f2937;
+    text-align: center;
 }
 
 body.dark .section-title {
@@ -200,26 +175,12 @@ body.dark .section-title {
     gap: 1rem;
     margin-bottom: 2rem;
     flex-wrap: wrap;
-}
-
-.method-select {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid #d1d5db;
-    background-color: white;
-    font-weight: 500;
-}
-
-body.dark .method-select {
-    background-color: #1f2937;
-    color: white;
-    border-color: #4b5563;
+    justify-content: center;
 }
 
 .btn-anonymize {
     background-color: #fff;
     color: black;
-    padding: 12px 20px;
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
@@ -231,7 +192,6 @@ body.dark .method-select {
     background-color: #c3c3c3;
     transform: scale(1.05);
 }
-
 
 body.dark button:active {
     background-color: #555;
@@ -382,10 +342,6 @@ body.dark .page-title {
     font-weight: 500;
 }
 
-.records-controls label {
-    color: #1f2937;
-}
-
 .records-select {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
@@ -402,18 +358,152 @@ body.dark .page-title {
     border-color: #9ca3af;
 }
 
+body.dark .records-select {
+    background-color: #1f2937;
+    color: #f9fafb;
+    border-color: #4b5563;
+
+}
+
 /* Dark mode */
-body.dark .records-controls label {
+.chart-container {
+    margin: 2rem 10%;
+    padding: 2rem;
+    background-color: #f3f4f6;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body.dark .chart-container {
+    background-color: #1f2937;
+}
+
+.benchmark-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+body.dark .benchmark-header {
+    color: #f9fafb;
+}
+
+
+.benchmark-charts {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.chart-wrapper {
+    padding: 1rem;
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+body.dark .chart-wrapper {
+    background-color: #2d3748;
     color: #e5e5e5;
 }
 
-body.dark .records-select {
+.method-select {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.method-select label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #1f2937;
+    background-color: #e5e7eb;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.method-select input[type="checkbox"] {
+    transform: scale(1.2);
+}
+
+.method-select label:hover {
+    background-color: #d1d5db;
+}
+
+body.dark .method-select label {
+    background-color: #374151;
+    color: #f9fafb;
+}
+
+body.dark .method-select label:hover {
+    background-color: #4b5563;
+}
+
+.execution-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+/* SELECT */
+.method-select-dropdown {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    color: #1f2937;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.method-select-dropdown:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+/* INPUT */
+.repeat-count-input {
+    width: 100px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    color: #1f2937;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.repeat-count-input:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+/* Dark mode */
+body.dark .method-select-dropdown,
+body.dark .repeat-count-input {
     background-color: #1f2937;
     color: #f9fafb;
     border-color: #4b5563;
 }
 
-body.dark .records-select:hover {
+body.dark .method-select-dropdown:hover,
+body.dark .repeat-count-input:hover {
     background-color: #374151;
 }
 

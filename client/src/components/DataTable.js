@@ -1,4 +1,3 @@
-// Reworked DataTable component with modern card layout, gender icons, search, and pagination
 import React, { useState } from "react";
 import "../style/App.css";
 
