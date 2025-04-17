@@ -9,21 +9,29 @@ const getRandomColor = () => {
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
-function generateRandomBIN() {
-    const year = Math.floor(Math.random() * (2024-1950+1))+1950;
-    const month = Math.floor(Math.random() * 12)+1;
-    const day = Math.floor(Math.random() * 28)+1;
-    const isFemale = Math.random() < 0.5;
-    const randNumber = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+function generateRandomBIN(bin) {
+    const [datePart, suffix] = bin.split('/');
+    let year = parseInt(datePart.slice(0, 2), 10);
+    let month = parseInt(datePart.slice(2, 4), 10);
+    const day = parseInt(datePart.slice(4, 6), 10);
 
-    const formYear = year.toString().slice(-2);
-    const formMonth = (month + (isFemale ? 50 : 0)).toString().padStart(2, '0');
-    const formDay = day.toString().padStart(2, '0');
+    const isFemale = month > 50;
+    if (isFemale) month -= 50;
 
-    const bin = `${formYear}${formMonth}${formDay}/${randNumber}`;
-    const birthDate = new Date(year, month-1, day);
+    const currentYear = new Date().getFullYear() % 100;
+    const fullYear = year <= currentYear ? 2000 + year : 1900 + year;
 
-    return {bin, birthDate, isFemale};
+    const yearOffset = Math.floor(Math.random() * 11) - 5;
+    const newYear = fullYear + yearOffset;
+
+    const newYearShort = newYear.toString().slice(-2);
+    const newMonth = (isFemale ? month + 50 : month).toString().padStart(2, '0');
+    const newDay = day.toString().padStart(2, '0');
+
+    const newBIN = `${newYearShort}${newMonth}${newDay}/${suffix}`;
+    const birthDate = new Date(newYear, month-1, day);
+
+    return { bin: newBIN, birthDate, isFemale };
 }
 
 function getAge(birthDate) {
@@ -73,8 +81,8 @@ function loadCSV(filePath) {
 function getRandomNameAndSurname(isFemale) {
     const maleNames = loadCSV('data/male_names.csv');
     const femaleNames = loadCSV('data/female_names.csv');
-    const maleSurnames = loadCSV('data/male_surrname.csv');
-    const femaleSurnames = loadCSV('data/female_surrname.csv');
+    const maleSurnames = loadCSV('data/male_surnames.csv');
+    const femaleSurnames = loadCSV('data/female_surnames.csv');
 
     const randomName = isFemale
         ? femaleNames[Math.floor(Math.random() * femaleNames.length)]

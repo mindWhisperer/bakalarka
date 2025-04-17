@@ -19,8 +19,8 @@ const generalize = (data) => {
         const genIDPacienta = record.ID_PACIENTA ? String(record.ID_PACIENTA).slice(0, 1) + "XX" : null;
 
         return {
-            MENO: record.MENO,
-            PRIEZVISKO: record.PRIEZVISKO,
+            //MENO: record.MENO,
+            //PRIEZVISKO: record.PRIEZVISKO,
             ID_PACIENTA: genIDPacienta,
             TYP_KRVI: genKrvnaSkupina,
             VEK: genVek,
@@ -147,12 +147,28 @@ const tCloseness = (data, t = 0.3) => {
 };
 
 const randomMasking =(data) => {
-    return data.map(() => {
+    return data.map((row) => {
         const idPatient = Math.random() < 0.1 ? null : generatePatientsId();
-        const { birthDate, isFemale} = generateRandomBIN();
+        const { birthDate, isFemale} = generateRandomBIN(row.ROD_CISLO);
         const age = getAge(birthDate);
         const gender = getGender(isFemale);
         const { name, surname } = getRandomNameAndSurname(isFemale);
+
+        let diagnoses = ["Choroby krvi a krvotvorných orgánov", "Choroby svalovej a kostrovej sústavy a spojivového tkaniva",
+            "Faktory ovplyvňujúce zdravotný stav a styk so zdravotníckymi službami", "Poranenia, otravy a niektoré iné následky vonkajších príčin",
+            "Vrodené chyby, deformity a chromozómové anomálie", "Vonkajšie príčiny chorobnosti a úmrtnosti",
+            "Choroby dýchacej sústavy", "Choroby tráviacej sústavy", "Choroby ucha a hlávkového výbežku", "Choroby obehovej sústavy",
+            "Choroby oka a očných adnexov", "Nádory", "Infekčné a parazitové choroba ", "Choroby močovopohlavnej sústavy",
+            "Choroby kože a podkožného tkaniva", "Kódy na osobitné účely", "Infekčné a parazitové choroby", "Duševné poruchy a poruchy správania",
+            "Endokrinné, nutričné a metabolické choroby", "Choroby nervovej sústavy"]
+
+        if (gender === "Z") {
+            diagnoses.push("Gravidita, pôrod a šestonedelie");
+        }
+
+        if (age === 0) {
+            diagnoses.push("Určité choroby vzniknuté v perinatálnom období");
+        }
 
         return {
             MENO: name,
@@ -161,13 +177,7 @@ const randomMasking =(data) => {
             TYP_KRVI: idPatient ? faker.helpers.arrayElement(["A+", "A-", "B+", "B-", "AB+", "AB-", "0+", "0-"]) : null,
             VEK: age,
             POHLAVIE: gender,
-            TYP_CHOROBY: idPatient ? faker.helpers.arrayElement(["Choroby krvi a krvotvorných orgánov", "Choroby svalovej a kostrovej sústavy a spojivového tkaniva",
-                "Faktory ovplyvňujúce zdravotný stav a styk so zdravotníckymi službami", "Poranenia, otravy a niektoré iné následky vonkajších príčin",
-                "Vrodené chyby, deformity a chromozómové anomálie", "Vonkajšie príčiny chorobnosti a úmrtnosti",
-                "Choroby dýchacej sústavy", "Choroby tráviacej sústavy", "Choroby ucha a hlávkového výbežku", "Choroby obehovej sústavy",
-            "Choroby oka a očných adnexov", "Nádory", "Infekčné a parazitové choroba ", "Choroby močovopohlavnej sústavy",
-            "Choroby kože a podkožného tkaniva", "Kódy na osobitné účely", "Infekčné a parazitové choroby", "Duševné poruchy a poruchy správania",
-            "Endokrinné, nutričné a metabolické choroby", "Choroby nervovej sústavy"]) : null
+            TYP_CHOROBY: idPatient ? faker.helpers.arrayElement(diagnoses) : null
         };
     });
 }
