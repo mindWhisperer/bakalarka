@@ -80,7 +80,10 @@ const Charts = () => {
         ]
     };
 
-    const lineData= {
+    const avg =
+        runResults.reduce((sum, r) => sum + r.duration, 0) / runResults.length;
+
+    const lineData = {
         labels: runResults.map(r => `Beh ${r.run}`),
         datasets: [
             {
@@ -89,9 +92,18 @@ const Charts = () => {
                 fill: false,
                 borderColor: 'rgb(75, 192, 192)',
                 tension: 0.2
+            },
+            {
+                label: "Priemer",
+                data: new Array(runResults.length).fill(Number(avg.toFixed(2))),
+                borderColor: 'rgba(255, 99, 132, 0.8)',
+                borderDash: [5, 5],
+                pointRadius: 0,
+                tension: 0.1
             }
         ]
     };
+
 
     return (
         <div className="chart-container">
