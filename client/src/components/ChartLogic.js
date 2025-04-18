@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { anonymizeData, fetchData } from "../services/api";
 
-export const useChartsLogic = () => {
+export const chartLogic = () => {
     const [selectedMethods, setSelectedMethods] = useState([]);
     const [chartData, setChartData] = useState([]);
     const [runResults, setRunResults] = useState({});
@@ -16,13 +16,17 @@ export const useChartsLogic = () => {
 
     const runChart = async () => {
         const originalData = await fetchData();
-        if (!originalData) return;
+        if (!originalData?.rows) return;
 
         const results = [];
         for (const method of selectedMethods) {
-            const response = await anonymizeData(originalData, method);
-            if (response && response.duration) {
-                results.push({ method, duration: response.duration });
+            if (method === "raw-data") {
+                results.push({ method: "raw-data", duration: originalData.duration });
+            } else {
+                const response = await anonymizeData(originalData.rows, method);
+                if (response?.duration) {
+                    results.push({ method, duration: response.duration });
+                }
             }
         }
         setChartData(results);
@@ -30,19 +34,24 @@ export const useChartsLogic = () => {
 
     const runMultipleTimes = async () => {
         setRunning(true);
-        const originalData = await fetchData();
-        if (!originalData) {
-            setRunning(false);
-            return;
-        }
-
         const results = {};
+
         for (const method of selectedMethods) {
             const methodResults = [];
+
             for (let i = 1; i <= repeatCount; i++) {
-                const res = await anonymizeData(originalData, method);
-                methodResults.push(res?.duration || 0);
+                const fetched = await fetchData();
+
+                if (!fetched?.rows) continue;
+
+                if (method === "raw-data") {
+                    methodResults.push(fetched.duration || 0);
+                } else {
+                    const res = await anonymizeData(fetched.rows, method);
+                    methodResults.push(res?.duration || 0);
+                }
             }
+
             results[method] = methodResults;
         }
 

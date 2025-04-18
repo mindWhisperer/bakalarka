@@ -1,12 +1,13 @@
 import React from "react";
 import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from "chart.js";
-import { useChartsLogic } from "./ChartLogic";
+import { chartLogic } from "./ChartLogic";
 import "../style/App.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
 const methodOptions = [
+    {label: "Pôvodné dáta", value: "raw-data"},
     { label: "Generalizácia", value: "generalization" },
     { label: "K-Anonymita", value: "k-anonymity" },
     { label: "L-Diverzita", value: "l-diversity" },
@@ -15,25 +16,25 @@ const methodOptions = [
 ];
 
 const Charts = () => {
-    const { selectedMethods, repeatCount, setRepeatCount, handleMethodToggle, runChart, runMultipleTimes, running, chartData, runResults} = useChartsLogic();
+    const { selectedMethods, repeatCount, setRepeatCount, handleMethodToggle, runChart, runMultipleTimes, running, chartData, runResults} = chartLogic();
 
     const barData = {
         labels: chartData.map(r => r.method),
         datasets: [
             {
-                label: "Trvanie (ms)",
+                label: "Trvanie v ms",
                 data: chartData.map(r => Number(r.duration.toFixed(2))),
-                backgroundColor: ['#F7CFD8', '#F4F8D3', '#FFD0C7', '#A6D6D6', '#8E7DBE'],
+                backgroundColor: ['#F7CFD8', '#F4F8D3', '#FFD0C7', '#A6D6D6', '#8E7DBE', '#7dbeb9'],
                 borderWidth: 1
             }
         ]
     };
 
     const lineData = {
-        labels: Array.from({ length: repeatCount }, (_, i) => `Beh ${i + 1}`),
+        labels: Array.from({ length: repeatCount }, (_, i) => `${i + 1}`),
         datasets: Object.entries(runResults).flatMap(([method, durations], index) => {
             const avg = durations.reduce((a, b) => a + b, 0) / durations.length;
-            const baseColor = ['rgb(75,192,192)', 'rgb(255,159,64)', 'rgb(153,102,255)', 'rgb(54,162,235)', 'rgb(255,99,132)'][index % 5];
+            const baseColor = ['rgb(75,192,192)', 'rgb(255,159,64)', 'rgb(153,102,255)', 'rgb(54,162,235)', 'rgb(255,99,132)', 'rgb(239,255,99)'][index % 5];
 
             return [
                 {
@@ -48,7 +49,7 @@ const Charts = () => {
                     data: Array(repeatCount).fill(Number(avg.toFixed(2))),
                     borderColor: baseColor,
                     borderDash: [5, 5],
-                    pointRadius: 0,
+                    pointRadius: 3,
                     tension: 0.1
                 }
             ];
@@ -95,6 +96,23 @@ const Charts = () => {
                             title: {
                                 display: true,
                                 text: "Porovnanie trvania algoritmov"
+                            },
+                            legend: {
+                                display: true
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Trvanie (ms)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Názov metódy'
+                                }
                             }
                         }
                     }} />
@@ -109,6 +127,23 @@ const Charts = () => {
                             title: {
                                 display: true,
                                 text: `Výsledky opakovaných behov pre vybrané metódy`
+                            },
+                            legend: {
+                                display: true
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Trvanie (ms)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Počet behov'
+                                }
                             }
                         }
                     }} />

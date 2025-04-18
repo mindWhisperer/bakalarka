@@ -45,8 +45,9 @@ class PatientModel {
         const connection = await getConnection();
 
         try {
+            const start = performance.now();
             const result = await connection.execute(
-                `SELECT MENO, PRIEZVISKO, P.ID_PACIENTA, TYP_KRVI,
+                `SELECT MENO, PRIEZVISKO, P.ID_PACIENTA, OS.ROD_CISLO, TYP_KRVI,
                 FLOOR(MONTHS_BETWEEN(SYSDATE,
                     CASE 
                         WHEN TO_NUMBER(SUBSTR(OS.ROD_CISLO, 1, 2)) < 25 
@@ -78,8 +79,14 @@ class PatientModel {
             JOIN OS_UDAJE OS ON P.ROD_CISLO = OS.ROD_CISLO`
             );
 
+            const end = performance.now();
+            const duration = end - start;
+
             await connection.close();
-            return result.rows; // Vráti všetky údaje naraz
+            return {
+                rows: result.rows,
+                duration: duration
+            }; // Vráti všetky údaje naraz
         } catch (error) {
             await connection.close();
             throw error;

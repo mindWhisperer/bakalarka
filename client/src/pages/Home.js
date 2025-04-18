@@ -19,6 +19,7 @@ const Home = ({ view }) => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [setCurrentChart] = useState(null);
+    const [duration, setDuration] = useState(null);
 
     // Načítanie dát po načítaní komponentu
     useEffect(() => {
@@ -30,7 +31,8 @@ const Home = ({ view }) => {
             if (response === null) {
                 setError("Nepodarilo sa načítať dáta zo servera.");
             } else {
-                setData(response);
+                setData(response.rows);
+                setDuration(response.duration);
             }
             setLoading(false);
         };
@@ -125,6 +127,9 @@ const Home = ({ view }) => {
             ) : view === "zoznam" ? (
                 <>
                     <h1 className="page-title">Zoznam pacientov</h1>
+                    {duration !== null && (
+                        <p><strong>Čas načítania pacientov:</strong> {duration.toFixed(2)} ms</p>
+                    )}
                     <DataTable data={data} />
                 </>
             ) : view === "grafy" ? (
