@@ -1,5 +1,5 @@
 const { faker } = require('@faker-js/faker');
-const { generatePatientsId, generateRandomBIN, getAge, getRandomNameAndSurname, getGender, dataGroup, computeDistribution, computeEMD } = require('./helpers');
+const {generateRandomBIN, getAge, getGender, dataGroup, computeDistribution, computeEMD, loadCSV } = require('./helpers');
 
 const generalize = (data) => {
     return data.map(record => {
@@ -14,18 +14,14 @@ const generalize = (data) => {
             else genVek = "60+";
         }
 
-        const genKrvnaSkupina = record.TYP_KRVI ? record.TYP_KRVI.replace(/[+-]/, "") : null;
-
-        const genIDPacienta = record.ID_PACIENTA ? String(record.ID_PACIENTA).slice(0, 1) + "XX" : null;
+        const genBloodType = record.TYP_KRVI ? record.TYP_KRVI.replace(/[+-]/, "") : null;
 
         return {
-            //MENO: record.MENO,
-            //PRIEZVISKO: record.PRIEZVISKO,
-            ID_PACIENTA: genIDPacienta,
-            TYP_KRVI: genKrvnaSkupina,
+            TYP_KRVI: genBloodType,
             VEK: genVek,
             POHLAVIE: record.POHLAVIE,
-            TYP_CHOROBY: record.TYP_CHOROBY
+            TYP_CHOROBY: record.TYP_CHOROBY,
+            TYP_POSTIHNUTIA: record.TYP_POSTIHNUTIA
         };
     });
 };
@@ -43,9 +39,6 @@ const kAnonymity = (data) => {
         if (group.length >= k) {
             anonymizedData.push(...group.map(record => {
                 const anonymizedRecord = { ...record };
-                delete anonymizedRecord.MENO;
-                delete anonymizedRecord.PRIEZVISKO;
-                delete anonymizedRecord.ID_PACIENTA;
                 anonymizedRecord.color = groupColors[key];
 
                 return anonymizedRecord;
@@ -71,19 +64,21 @@ const lDiversity = (data) => {
     Object.entries(groups).forEach(([key, group]) => {
         const uniqueBloodTypes = new Set(group.map(item => item.TYP_KRVI));
         const uniqueDiseaseTypes = new Set(group.map(item => item.TYP_CHOROBY));
+        const uniqueDisabilityTypes = new Set(group.map(item => item.TYP_POSTIHNUTIA));
+        const allNull = [ ...uniqueDiseaseTypes, ...uniqueDisabilityTypes].every(value => value === null);
 
-        if (uniqueBloodTypes.size >= l && uniqueDiseaseTypes.size >= l) {
+        if (uniqueBloodTypes.size >= l && uniqueDiseaseTypes.size >= l && uniqueDisabilityTypes.size >= l) {
             anonymizedData.push(...group.map(record => {
                 const anonymizedRecord = { ...record };
-                delete anonymizedRecord.MENO;
-                delete anonymizedRecord.PRIEZVISKO;
-                delete anonymizedRecord.ID_PACIENTA;
-
                 anonymizedRecord.color = groupColors[key];
-
                 return anonymizedRecord;
             }));
-        } else {
+        } else if (allNull) {
+        anonymizedData.push(...group.map(record => ({
+            ...record,
+            color: groupColors[key],
+            })));
+         } else {
             removedGroups[key] = group;
         }
     });
@@ -95,29 +90,30 @@ const lDiversity = (data) => {
 
 const tCloseness = (data, t = 0.3) => {
     const generalizedData = generalize(data);
-
     const globalDist = computeDistribution(generalizedData, "TYP_CHOROBY");
     const globalDistBlood = computeDistribution(generalizedData, "TYP_KRVI");
+    const globalDistDisability = computeDistribution(generalizedData, "TYP_POSTIHNUTIA");
 
-    console.log("Celkové rozdelenie: ", globalDist);
+    console.log("Celkové rozdelenie chorob: ", globalDist);
     console.log("Celkové rozdelenie krvných skupín: ", globalDistBlood);
+    console.log("Celkové rozdelenie postihnnuti: ", globalDistDisability);
 
     const { groups, groupColors } = dataGroup(generalizedData,  ["VEK", "POHLAVIE"]);
-
     const anonymizedData = [];
-    const removedGroups = {}; 
+    const removedGroups = {};
 
     Object.entries(groups).forEach(([key, group]) => {
         const localDist = computeDistribution(group, "TYP_CHOROBY");
         const localDistBlood = computeDistribution(group, "TYP_KRVI");
-
+        const localDistDisability = computeDistribution(group, "TYP_POSTIHNUTIA");
         console.log(`Distribúcia pre skupinu ${key} :`, localDist);
         console.log(`Distribúcia pre skupinu ${key} (krvné skupiny):`, localDistBlood);
-
+        console.log(`Distribúcia pre skupinu ${key} (postihnutia):`, localDistDisability);
         const emd = computeEMD(globalDist, localDist);
         const emdBlood = computeEMD(globalDistBlood, localDistBlood);
+        const emdDisability = computeEMD(globalDistDisability, localDistDisability);
 
-        if (emd <= t && emdBlood <= t) {
+        if (emd <= t && emdBlood <= t && emdDisability <= t) {
             anonymizedData.push(...group.map(record => {
                 const anonymizedRecord = { ...record };
                 delete anonymizedRecord.MENO;
@@ -131,7 +127,8 @@ const tCloseness = (data, t = 0.3) => {
         } else {
             removedGroups[key] = {
                 localDist: localDist,
-                bloodDist: localDistBlood
+                bloodDist: localDistBlood,
+                disabilityDist: localDistDisability
             };
         }
     });
@@ -141,6 +138,7 @@ const tCloseness = (data, t = 0.3) => {
         console.log(`Skupina ${key} :`);
         console.log(`Distribúcia v odstránenej skupine ${key} :`, value.localDist);
         console.log(`Distribúcia krvných skupín v odstránenej skupine ${key} :`, value.bloodDist);
+        console.log(`Distribúcia postihnuti v odstránenej skupine ${key} :`, value.disabilityDist);
     });
 
     return anonymizedData;

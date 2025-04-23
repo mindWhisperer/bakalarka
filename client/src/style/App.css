@@ -20,15 +20,15 @@ h1 {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0 1rem;
+
 }
 
 .patient-table thead th {
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.3rem;
     font-size: 1rem;
     color: #e2e8f0;
     text-align: center;
     background-color: #2d3748;
-    letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
