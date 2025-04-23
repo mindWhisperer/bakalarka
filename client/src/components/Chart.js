@@ -30,11 +30,13 @@ const Charts = () => {
         ]
     };
 
+
     const lineData = {
         labels: Array.from({ length: repeatCount }, (_, i) => `${i + 1}`),
         datasets: Object.entries(runResults).flatMap(([method, durations], index) => {
             const avg = durations.reduce((a, b) => a + b, 0) / durations.length;
-            const baseColor = ['rgb(75,192,192)', 'rgb(255,159,64)', 'rgb(153,102,255)', 'rgb(54,162,235)', 'rgb(255,99,132)', 'rgb(239,255,99)'][index % 5];
+            const baseColor = ['rgb(75,192,192)', 'rgb(255,159,64)', 'rgb(153,102,255)', 'rgb(54,162,235)', 'rgb(255,99,132)',
+                'rgb(255,99,242)', 'rgb(239,255,99)'][index % 6];
 
             return [
                 {
@@ -55,6 +57,22 @@ const Charts = () => {
             ];
         })
     };
+
+    const pieData = {
+        labels: Object.keys(runResults),
+        datasets: [
+            {
+                label: "Priemerné trvanie v ms",
+                data: Object.values(runResults).map(durations =>
+                    Number((durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(2))
+                ),
+                backgroundColor: ['#FFC09F', '#ADFFB0', '#A0CED9', '#FFB5E8', '#CBAACB', '#FFDAC1'],
+                borderWidth: 1
+            }
+        ]
+    };
+
+
 
     return (
         <div className="chart-container">
@@ -149,6 +167,40 @@ const Charts = () => {
                     }} />
                 </div>
             )}
+
+            {Object.keys(runResults).length > 0 && (
+                <div style={{ marginTop: 30 }}>
+                    <Bar
+                        data={pieData}
+                        options={{
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: "Priemerné trvanie algoritmov"
+                                },
+                                legend: {
+                                    display: true
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Trvanie (ms)'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Metóda'
+                                    }
+                                }
+                            }
+                        }}
+                    />
+                </div>
+            )}
+
         </div>
     );
 };
