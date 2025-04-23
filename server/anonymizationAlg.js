@@ -116,10 +116,6 @@ const tCloseness = (data, t = 0.3) => {
         if (emd <= t && emdBlood <= t && emdDisability <= t) {
             anonymizedData.push(...group.map(record => {
                 const anonymizedRecord = { ...record };
-                delete anonymizedRecord.MENO;
-                delete anonymizedRecord.PRIEZVISKO;
-                delete anonymizedRecord.ID_PACIENTA;
-
                 anonymizedRecord.color = groupColors[key];
 
                 return anonymizedRecord;
@@ -143,22 +139,53 @@ const tCloseness = (data, t = 0.3) => {
 
     return anonymizedData;
 };
+// CSV cache
 
-const randomMasking =(data) => {
+let maleNames = [], femaleNames = [], maleSurnames = [], femaleSurnames = [];
+let csvLoaded = false;
+
+function preloadCSVData() {
+    if (csvLoaded) return;
+
+    maleNames = loadCSV('data/male_names.csv');
+    femaleNames = loadCSV('data/female_names.csv');
+    maleSurnames = loadCSV('data/male_surnames.csv');
+    femaleSurnames = loadCSV('data/female_surnames.csv');
+    csvLoaded = true;
+}
+
+function getRandomNameAndSurname(isFemale) {
+    const name = isFemale
+        ? femaleNames[Math.floor(Math.random() * femaleNames.length)]
+        : maleNames[Math.floor(Math.random() * maleNames.length)];
+
+    const surname = isFemale
+        ? femaleSurnames[Math.floor(Math.random() * femaleSurnames.length)]
+        : maleSurnames[Math.floor(Math.random() * maleSurnames.length)];
+
+    return { name, surname };
+}
+
+function randomMasking(data) {
+    preloadCSVData();
+    const usedIds = new Set();
+    const generatePatientsId = () => {
+        let newId;
+        do {
+            newId = Math.floor(Math.random() * 99999) + 1;
+        } while (usedIds.has(newId));
+        usedIds.add(newId);
+        return newId;
+    };
     return data.map((row) => {
         const idPatient = Math.random() < 0.1 ? null : generatePatientsId();
-        const { birthDate, isFemale} = generateRandomBIN(row.ROD_CISLO);
+        const { birthDate, isFemale } = generateRandomBIN(row.ROD_CISLO);
         const age = getAge(birthDate);
         const gender = getGender(isFemale);
         const { name, surname } = getRandomNameAndSurname(isFemale);
-
-        let diagnoses = ["Choroby krvi a krvotvorných orgánov", "Choroby svalovej a kostrovej sústavy a spojivového tkaniva",
-            "Faktory ovplyvňujúce zdravotný stav a styk so zdravotníckymi službami", "Poranenia, otravy a niektoré iné následky vonkajších príčin",
-            "Vrodené chyby, deformity a chromozómové anomálie", "Vonkajšie príčiny chorobnosti a úmrtnosti",
-            "Choroby dýchacej sústavy", "Choroby tráviacej sústavy", "Choroby ucha a hlávkového výbežku", "Choroby obehovej sústavy",
-            "Choroby oka a očných adnexov", "Nádory", "Infekčné a parazitové choroba ", "Choroby močovopohlavnej sústavy",
-            "Choroby kože a podkožného tkaniva", "Kódy na osobitné účely", "Infekčné a parazitové choroby", "Duševné poruchy a poruchy správania",
-            "Endokrinné, nutričné a metabolické choroby", "Choroby nervovej sústavy"]
+        let diagnoses = [
+            "Choroby krvi a krvotvorných orgánov", "Choroby svalovej a kostrovej sústavy a spojivového tkaniva", "Faktory ovplyvňujúce zdravotný stav a styk so zdravotníckymi službami", "Poranenia, otravy a niektoré iné následky vonkajších príčin", "Vrodené chyby, deformity a chromozómové anomálie", "Vonkajšie príčiny chorobnosti a úmrtnosti", "Choroby dýchacej sústavy", "Choroby tráviacej sústavy", "Choroby ucha a hlávkového výbežku", "Choroby obehovej sústavy", "Choroby oka a očných adnexov", "Nádory", "Infekčné a parazitové choroby", "Choroby močovopohlavnej sústavy", "Choroby kože a podkožného tkaniva", "Kódy na osobitné účely", "Duševné poruchy a poruchy správania", "Endokrinné, nutričné a metabolické choroby", "Choroby nervovej sústavy"
+        ];
 
         if (gender === "Z") {
             diagnoses.push("Gravidita, pôrod a šestonedelie");
@@ -179,5 +206,6 @@ const randomMasking =(data) => {
         };
     });
 }
+
 
 module.exports = {generalize, kAnonymity, lDiversity, tCloseness,randomMasking}

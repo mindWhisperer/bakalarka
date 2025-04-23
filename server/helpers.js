@@ -10,7 +10,7 @@ const getRandomColor = () => {
 }
 
 function generateRandomBIN(bin) {
-    const [datePart, suffix] = bin.split('/');
+    const [datePart] = bin.split('/');
     let year = parseInt(datePart.slice(0, 2), 10);
     let month = parseInt(datePart.slice(2, 4), 10);
     const day = parseInt(datePart.slice(4, 6), 10);
@@ -24,48 +24,23 @@ function generateRandomBIN(bin) {
     const yearOffset = Math.floor(Math.random() * 11) - 5;
     const newYear = fullYear + yearOffset;
 
-    const newYearShort = newYear.toString().slice(-2);
-    const newMonth = (isFemale ? month + 50 : month).toString().padStart(2, '0');
-    const newDay = day.toString().padStart(2, '0');
+    const birthDate = new Date(newYear, month - 1, day);
 
-    const newBIN = `${newYearShort}${newMonth}${newDay}/${suffix}`;
-    const birthDate = new Date(newYear, month-1, day);
-
-    return { bin: newBIN, birthDate, isFemale };
+    return { bin, birthDate, isFemale };
 }
 
 function getAge(birthDate) {
-    const currentDate = new Date();
-    const year = birthDate.getFullYear();
-    const month = birthDate.getMonth();
-    const day = birthDate.getDate();
-
-    let age = currentDate.getFullYear() - year;
-
-    if (
-        currentDate.getMonth() < month ||
-        (currentDate.getMonth() === month && currentDate.getDate() < day)
-    ) {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
         age--;
     }
-
     return age;
 }
 
-function getGender (isFemale) {
+function getGender(isFemale) {
     return isFemale ? 'Z' : 'M';
-}
-
-const usedPatientsId = [];
-
-function generatePatientsId() {
-    let newId;
-    do {
-        newId = Math.floor(Math.random() * 99999) + 1;
-    } while (usedPatientsId.includes(newId));
-
-    usedPatientsId.push(newId);
-    return newId;
 }
 
 function loadCSV(filePath) {
@@ -76,26 +51,6 @@ function loadCSV(filePath) {
     });
 
     return parsedData.data.map(row => row[0]);
-}
-
-function getRandomNameAndSurname(isFemale) {
-    const maleNames = loadCSV('data/male_names.csv');
-    const femaleNames = loadCSV('data/female_names.csv');
-    const maleSurnames = loadCSV('data/male_surnames.csv');
-    const femaleSurnames = loadCSV('data/female_surnames.csv');
-
-    const randomName = isFemale
-        ? femaleNames[Math.floor(Math.random() * femaleNames.length)]
-        : maleNames[Math.floor(Math.random() * maleNames.length)];
-
-    const randomSurname = isFemale
-        ? femaleSurnames[Math.floor(Math.random() * femaleSurnames.length)]
-        : maleSurnames[Math.floor(Math.random() * maleSurnames.length)];
-
-    return {
-        name: randomName,
-        surname: randomSurname
-    };
 }
 
 const dataGroup = (data, keyAttributes) => {
@@ -139,4 +94,4 @@ const calculateEMD = (dist1, dist2) => {
     return emd / 2;
 };
 
-module.exports = {getRandomNameAndSurname, getAge, generateRandomBIN, generatePatientsId, getGender,dataGroup, computeDistribution: calculateDistribution, computeEMD: calculateEMD}
+module.exports = {getAge, generateRandomBIN, getGender,dataGroup, computeDistribution: calculateDistribution, computeEMD: calculateEMD, loadCSV}

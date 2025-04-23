@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../style/App.css";
 
-const RECORDS_PER_PAGE_OPTIONS = [10, 20, 30];
+const RECORDS_PER_PAGE_OPTIONS = [10, 20, 30, 5000];
 
 const DataTable = ({ data }) => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -66,13 +66,13 @@ const DataTable = ({ data }) => {
                                             value === "M" ? (
                                                 <img
                                                     className="gender-icon"
-                                                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWho3Mk2UyAJMYh615WHKGliTXxLTz2U36iw&s"
+                                                    src="https://d1nhio0ox7pgb.cloudfront.net/_img/g_collection_png/standard/256x256/symbol_male.png"
                                                     alt="Muž"
                                                 />
                                             ) : (
                                                 <img
                                                     className="gender-icon"
-                                                    src="https://img.cas.sk/cas/1280px-c2/4650197.jpg"
+                                                    src="https://t3.ftcdn.net/jpg/01/37/69/42/360_F_137694239_ihbs4kHd2w3HC3KipODkBDfhltbjwwLV.jpg"
                                                     alt="Žena"
                                                 />
                                             )
