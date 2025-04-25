@@ -36,23 +36,51 @@ export const chartLogic = () => {
         setRunning(true);
         const results = {};
 
-        for (const method of selectedMethods) {
-            const methodResults = [];
+        for (let i = 1; i <= repeatCount; i++) {
+            const fetched = await fetchData();
 
-            for (let i = 1; i <= repeatCount; i++) {
-                const fetched = await fetchData();
+            if (!fetched?.rows) continue;
 
-                if (!fetched?.rows) continue;
+            for (const method of selectedMethods) {
+                const methodResults = results[method] || [];
+
+                let totalDuration = 0;
 
                 if (method === "raw-data") {
-                    methodResults.push(fetched.duration || 0);
+                    totalDuration = fetched.duration || 0;
                 } else {
                     const res = await anonymizeData(fetched.rows, method);
-                    methodResults.push(res?.duration || 0);
-                }
-            }
 
-            results[method] = methodResults;
+                    totalDuration = res.duration;
+                    //totalDuration = fetched.duration + res.duration;
+                }
+                methodResults.push(totalDuration);
+                results[method] = methodResults;
+            }
+        }
+
+        // Výpočty štatistík
+        for (const method of selectedMethods) {
+            const methodResults = results[method];
+
+            const min = Math.min(...methodResults);
+            const max = Math.max(...methodResults);
+            const avg = methodResults.reduce((a, b) => a + b, 0) / methodResults.length;
+
+            const variance = methodResults.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / methodResults.length;
+            const stdDev = Math.sqrt(variance);
+
+            const minIndex = methodResults.indexOf(min) + 1;
+            const maxIndex = methodResults.indexOf(max) + 1;
+
+            console.log(`Metóda: ${method}`);
+            console.log(`- Namerané hodnoty:`, methodResults.map((v, i) => `Beh ${i + 1}: ${v.toFixed(4)} ms`).join(', '));
+            console.log(`- Minimum: ${min.toFixed(4)} ms (beh ${minIndex})`);
+            console.log(`- Maximum: ${max.toFixed(4)} ms (beh ${maxIndex})`);
+            console.log(`- Priemer: ${avg.toFixed(4)} ms`);
+            console.log(`- Rozptyl: ${variance.toFixed(4)}`);
+            console.log(`- Smerodajná odchýlka: ${stdDev.toFixed(4)} ms`);
+            console.log('----------------------');
         }
 
         setRunResults(results);

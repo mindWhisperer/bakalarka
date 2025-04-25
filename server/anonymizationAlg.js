@@ -183,6 +183,8 @@ function randomMasking(data) {
         const age = getAge(birthDate);
         const gender = getGender(isFemale);
         const { name, surname } = getRandomNameAndSurname(isFemale);
+        let disabilities = ["Telesné" , "Zrakové" , "Sluchové" , "Chronické" , "Rečové" , "Mentálne/Duševné" , "Psychické" , "Kombinované"];
+
         let diagnoses = [
             "Choroby krvi a krvotvorných orgánov", "Choroby svalovej a kostrovej sústavy a spojivového tkaniva", "Faktory ovplyvňujúce zdravotný stav a styk so zdravotníckymi službami", "Poranenia, otravy a niektoré iné následky vonkajších príčin", "Vrodené chyby, deformity a chromozómové anomálie", "Vonkajšie príčiny chorobnosti a úmrtnosti", "Choroby dýchacej sústavy", "Choroby tráviacej sústavy", "Choroby ucha a hlávkového výbežku", "Choroby obehovej sústavy", "Choroby oka a očných adnexov", "Nádory", "Infekčné a parazitové choroby", "Choroby močovopohlavnej sústavy", "Choroby kože a podkožného tkaniva", "Kódy na osobitné účely", "Duševné poruchy a poruchy správania", "Endokrinné, nutričné a metabolické choroby", "Choroby nervovej sústavy"
         ];
@@ -202,7 +204,8 @@ function randomMasking(data) {
             TYP_KRVI: idPatient ? faker.helpers.arrayElement(["A+", "A-", "B+", "B-", "AB+", "AB-", "0+", "0-"]) : null,
             VEK: age,
             POHLAVIE: gender,
-            TYP_CHOROBY: idPatient ? faker.helpers.arrayElement(diagnoses) : null
+            TYP_CHOROBY: idPatient ? faker.helpers.arrayElement(diagnoses) : null,
+            TYP_POSTIHNUTIA: idPatient ? faker.helpers.arrayElement(disabilities) : null
         };
     });
 }
