@@ -1,5 +1,9 @@
 const API_URL = "http://localhost:4000/api";
 
+/**
+ * Načíta surové dáta zo servera.
+ * @returns {Promise<Object|null>} - Dáta alebo null ak nastala chyba.
+ */
 export const fetchData = async () => {
     try {
         const response = await fetch(`${API_URL}/data`);
@@ -14,6 +18,12 @@ export const fetchData = async () => {
     }
 };
 
+/**
+ * Odosiela dáta na anonymizáciu konkrétnou metódou.
+ * @param {Array} data - Dáta pacientov.
+ * @param {string} method - Názov anonymizačnej metódy.
+ * @returns {Promise<Object|null>} - Výsledok anonymizácie alebo null.
+ */
 export const anonymizeData = async (data, method) => {
     try {
         const response = await fetch(`${API_URL}/anonymize`, {

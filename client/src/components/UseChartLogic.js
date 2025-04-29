@@ -1,19 +1,38 @@
 import { useState } from "react";
 import { anonymizeData, fetchData } from "../services/api";
 
-export const chartLogic = () => {
+/**
+ * Logika generovania grafov na základe anonymizačných metód.
+ * Zabezpečuje zber dát, výpočty trvania a štatistické spracovanie opakovaných behov.
+ */
+export const useChartLogic = () => {
+    // Zoznam vybraných anonymizačných metód používateľom
     const [selectedMethods, setSelectedMethods] = useState([]);
+    // Dáta pre zobrazenie v stĺpcovom grafe (1 beh)
     const [chartData, setChartData] = useState([]);
+    // Výsledky z viacerých behov, používané pre line chart
     const [runResults, setRunResults] = useState({});
+    // Počet opakovaní testovania
     const [repeatCount, setRepeatCount] = useState(5);
+    // Indikátor, že testovanie práve prebieha
     const [running, setRunning] = useState(false);
 
+    /**
+     * Prepína výber konkrétnej anonymizačnej metódy.
+     * Ak je už vybraná, odstráni ju; inak ju pridá.
+     *
+     * @param {string} value - Identifikátor metódy
+     */
     const handleMethodToggle = (value) => {
         setSelectedMethods(prev =>
             prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
         );
     };
 
+    /**
+     * Spustí anonymizáciu a meranie len raz pre každú vybranú metódu.
+     * Výsledky sa ukladajú do `chartData`.
+     */
     const runChart = async () => {
         const originalData = await fetchData();
         if (!originalData?.rows) return;
@@ -32,6 +51,10 @@ export const chartLogic = () => {
         setChartData(results);
     };
 
+    /**
+     * Spustí anonymizáciu pre všetky vybrané metódy viackrát (podľa `repeatCount`)
+     * a vypočíta štatistiky ako priemer, minimum, maximum, rozptyl a smerodajnú odchýlku.
+     */
     const runMultipleTimes = async () => {
         setRunning(true);
         const results = {};

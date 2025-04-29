@@ -4,6 +4,8 @@ import Charts from "../components/Chart";
 import { fetchData, anonymizeData } from "../services/api";
 import "../style/App.css";
 
+
+// Mapovanie pohľadov na názvy metód, ktoré očakáva backend
 const methodParamMap = {
     "anonymizacia": "generalization",
     "k_anonymita": "k-anonymity",
@@ -21,7 +23,9 @@ const Home = ({ view }) => {
     const [setCurrentChart] = useState(null);
     const [duration, setDuration] = useState(null);
 
-    // Načítanie dát po načítaní komponentu
+    /**
+     * Po načítaní komponentu sa automaticky získajú pôvodné dáta pacientov.
+     */
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -44,7 +48,10 @@ const Home = ({ view }) => {
         });
     }, []);
 
-    // Automatická anonymizácia pri zmene view
+    /**
+     * Pri zmene view sa automaticky
+     * spustí anonymizácia, ak je view v zozname podporovaných metód.
+     */
     useEffect(() => {
         const shouldAutoAnonymize = Object.keys(methodParamMap).includes(view);
 
@@ -80,7 +87,9 @@ const Home = ({ view }) => {
         }
     }, [view, data]);
 
-    // Manuálne anonymizovanie cez button
+    /**
+     * Manuálne spustenie anonymizácie po kliknutí na tlačidlo.
+     */
     const handleAnonymize = async () => {
         setLoading(true);
         setError(null);
@@ -104,6 +113,9 @@ const Home = ({ view }) => {
         }
     };
 
+    /**
+     * Pomocná funkcia na zobrazenie pekného názvu metódy v nadpise.
+     */
     const getMethodName = (method) => {
         const methods = {
             "anonymizacia": "Generalizácie",
