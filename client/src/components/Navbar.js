@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../style/index.css";
+import "../style/App.css";
 
 /**
  * Komponent Navbar slúži ako hlavná navigačná lišta aplikácie.

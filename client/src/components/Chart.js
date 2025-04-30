@@ -122,6 +122,13 @@ const Charts = () => {
                 Spustiť {repeatCount}×
             </button>
 
+            {running && (
+                <div className="loader-container">
+                    <div className="spinner" />
+                    <p>Načítavam</p>
+                </div>
+            )}
+
             {/* Bar graf – trvanie 1 behu */}
             {chartData.length > 0 && (
                 <div style={{ marginTop: 30 }}>

@@ -85,7 +85,7 @@ const Home = ({ view }) => {
                 setLoading(false);
             });
         }
-    }, [view, data]);
+    }, [view, data, setCurrentChart]);
 
     /**
      * Manuálne spustenie anonymizácie po kliknutí na tlačidlo.
